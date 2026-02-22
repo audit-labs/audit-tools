@@ -1,0 +1,84 @@
+* Audit Tools
+
+*Audit Tools* is a collection of open-source Python scripts and related resources
+intended to support auditors, risk professionals, and data analysts in
+automating common audit procedures and analyses.
+
+This repository includes practical examples that can be used as-is or adapted to
+specific audit environments.
+
+** Contents
+
+| Directory            | Description                                                                  |
+|----------------------+------------------------------------------------------------------------------|
+| =applications/aws/=    | AWS IAM users, password policy, and S3 bucket analysis                       |
+| =applications/github/= | GitHub admin enumeration, audit log, branch protections, and commit analysis |
+| =applications/gitlab/= | GitLab user provisioning, branch protections, approvals, pipelines, and more |
+| =databases/mongo/=     | MongoDB admin enumeration                                                    |
+| =databases/mysql/=     | MySQL admin and password queries                                             |
+| =databases/oracle/=    | Oracle admin queries                                                         |
+| =databases/postgres/=  | PostgreSQL admin and password queries                                        |
+| =databases/sql/=       | Generic SQL admin queries and password analysis                              |
+| =os/linux/=            | Linux OS reporting, password file analysis, and SSH root login checks        |
+| =project_management/=  | Audit project tracking dashboards (Alteryx, Dash, Power BI)                  |
+| =sampling/=            | Random and stratified sampling tools                                         |
+
+** Getting Started
+
+*Clone the Repository*
+
+#+begin_src bash
+git clone https://github.com/audit-lab/audit-toolss
+cd audit-tools
+#+end_src
+
+#+RESULTS:
+
+*Install Dependencies*
+
+#+begin_src bash
+pip install -r requirements.txt
+#+end_src
+
+*Run a Script*
+
+For example, to run the Linux OS report tool:
+
+#+begin_src bash
+./os/linux/report/linux.sh
+#+end_src
+
+Or to run a Python script:
+
+#+begin_src bash
+python sampling/sample.py
+#+end_src
+
+Output will be shown in the terminal or saved to a file, depending on the
+script.
+
+** Contributing
+
+Contributions are welcome. You can contribute by:
+
+- Adding new audit-related scripts
+- Suggesting improvements or feature ideas
+- Enhancing documentation
+- Testing the tools on additional datasets and reporting any issues
+
+To contribute:
+
+1. Fork the repository
+2. Create a new branch:
+   #+begin_src bash
+   git checkout -b my-feature
+   #+end_src
+3. Commit your changes:
+   #+begin_src bash
+   git commit -m 'Added new audit test'
+   #+end_src
+4. Push your branch:
+   #+begin_src bash
+   git push origin my-feature
+   #+end_src
+5. Open a pull request
