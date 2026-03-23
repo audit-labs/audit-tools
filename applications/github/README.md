@@ -1,113 +1,53 @@
-**NOTE**: I used the same
-[PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
-for all scripts within this folder. Note that you can likely reduce
-permissions for certain scripts - it's best practice to define a PAT for
-a specific purpose and avoid using a single PAT with broad permissions.
+> **NOTE**: The PAT used across all scripts needs the following minimum permissions:
+> - Repository: Actions (read), Contents (read), Metadata (read), Workflows (read)
+> - Organization: Administration (read), Members (read)
 
-- Personal Access Token:
-  - \[x\] Repository Permissions
-    - \[x\] Actions: read-only
-    - \[x\] Contents: read-only
-    - \[x\] Metadata: read-only
-    - \[x\] Workflows: read-only
-  - \[x\] Organization Permissions
-    - \[x\] Administration: read-only
+---
 
-# `github_admins.py`
+# `audit.py` — Unified GitHub Audit Tool
 
-``` bash
-python ./github_admins.py
+Runs all collectors against a GitHub organization and writes a timestamped
+audit package to disk.
+
+## Setup
+
+```bash
+export GITHUB_TOKEN=your_token
+export GITHUB_ORG=your_organization
 ```
 
-``` text
-Members of the organization 'your_organization':
+## Usage
 
-Repositories in the organization 'your_organization':
-- demo-repository
+```bash
+# Basic run — uses GITHUB_TOKEN and GITHUB_ORG from environment
+python audit.py
 
-Collaborators for the repository 'demo-repository':
-- user1: admin
+# Override org, set output directory
+python audit.py --org my-org --out ./output
+
+# Collect commits from a non-default branch
+python audit.py --branch develop
+
+# Include audit log (requires GitHub Enterprise)
+python audit.py --include-audit-log
 ```
 
-# `github_audit_log.py`
+## Output
 
-**NOTE**: Requires an active GitHub Enterprise subscription.
+Creates a directory: `<out>/github_audit_<org>_<YYYY-MM-DD>/`
 
-``` bash
-python ./github_audit_log.py
-```
+| File | Contents |
+|---|---|
+| `member_roster.csv` | All org members with role (owner vs member) |
+| `two_factor_disabled.csv` | Org members without 2FA enabled |
+| `outside_collaborators.csv` | Non-org members with direct repo access |
+| `privileged_access.csv` | All users with admin permission on any repo |
+| `pending_invitations.csv` | Invitations not yet accepted, with age in days |
+| `team_permissions.csv` | Teams, their repos, permissions, and members |
+| `permission_matrix.csv` | Full user/repo/permission cross-reference |
+| `branch_protections.csv` | Branch protection settings across all repos |
+| `commits.csv` | Commit history across all repos for the target branch |
+| `audit_log.csv` | Org-level audit events (Enterprise only, opt-in) |
+| `summary.txt` | Row counts per section |
 
-``` text
-TODO: Need to get an Enterprise subscription to test this script.
-```
 
-# `github_branch_protections.py`
-
-``` bash
-python ./github_branch_protections.py
-```
-
-``` text
-Total branches in the repository 'demo-repository': 1
-
-Branch: main
-No protection settings
-
-Repository rulesets for 'demo-repository':
-[{'id': 2311373, 'name': 'default', 'target': 'branch', 'source_type': 'Repository', 'source': 'phryq/demo-repository', 'enforcement': 'active', 'node_id': 'RRS_lACqUmVwb3NpdG9yec40LV1PzgAjRM0', '_links': {'self': {'href': 'https://api.github.com/repos/phryq/demo-repository/rulesets/2311373'}, 'html': {'href': 'https://github.com/phryq/demo-repository/rules/2311373'}}, 'created_at': '2024-10-19T15:59:35.200-05:00', 'updated_at': '2024-10-19T15:59:35.200-05:00'}]
-```
-
-# `github_commits.py`
-
-``` bash
-python ./github_commits.py
-```
-
-``` text
-Total commits in the repository 'demo-repository' on branch 'main': 3
-
-Commit SHA: 13c488a2cdda08e4043f8ef36ced5fdd429e9718
-Author: Christian Cleberg <156287552+ccleberg@users.noreply.github.com>
-Date: 2024-10-19T20:57:55Z
-Message: Merge pull request #2 from phryq/1-test-issue
-
-fixes
-URL: https://github.com/phryq/demo-repository/commit/13c488a2cdda08e4043f8ef36ced5fdd429e9718
-Files changed:
-  - .gitignore (added)
-    Additions: 0, Deletions: 0, Changes: 0
-  - README.md (removed)
-    Additions: 0, Deletions: 4, Changes: 4
-  - README.org (added)
-    Additions: 7, Deletions: 0, Changes: 7
-
-Commit SHA: 6bfde238a2a34a93ce8ee02082eaf4ab3c189368
-Author: Christian Cleberg <hello@cmc.pub>
-Date: 2024-10-19T20:56:50Z
-Message: fixes
-URL: https://github.com/phryq/demo-repository/commit/6bfde238a2a34a93ce8ee02082eaf4ab3c189368
-Files changed:
-  - .gitignore (added)
-    Additions: 0, Deletions: 0, Changes: 0
-  - README.md (removed)
-    Additions: 0, Deletions: 4, Changes: 4
-  - README.org (added)
-    Additions: 7, Deletions: 0, Changes: 7
-
-Commit SHA: be1ddf31e08fc790f54d68f8067b7b2f3805f999
-Author: Christian Cleberg <156287552+ccleberg@users.noreply.github.com>
-Date: 2024-10-19T20:54:08Z
-Message: Initial commit
-URL: https://github.com/phryq/demo-repository/commit/be1ddf31e08fc790f54d68f8067b7b2f3805f999
-Files changed:
-  - .github/workflows/auto-assign.yml (added)
-    Additions: 19, Deletions: 0, Changes: 19
-  - .github/workflows/proof-html.yml (added)
-    Additions: 11, Deletions: 0, Changes: 11
-  - README.md (added)
-    Additions: 4, Deletions: 0, Changes: 4
-  - index.html (added)
-    Additions: 1, Deletions: 0, Changes: 1
-  - package.json (added)
-    Additions: 9, Deletions: 0, Changes: 9
-```
