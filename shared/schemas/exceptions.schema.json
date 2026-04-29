@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Standardized Exceptions",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["type", "message", "severity"],
+    "properties": {
+      "type": {"type": "string"},
+      "message": {"type": "string"},
+      "severity": {"type": "string", "enum": ["info", "warning", "error"]},
+      "context": {"type": "object"}
+    },
+    "additionalProperties": true
+  }
+}

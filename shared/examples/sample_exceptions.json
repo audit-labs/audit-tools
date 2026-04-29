@@ -1,0 +1,8 @@
+[
+  {
+    "type": "DependencyError",
+    "message": "aws CLI not found",
+    "severity": "error",
+    "context": {"binary": "aws"}
+  }
+]
