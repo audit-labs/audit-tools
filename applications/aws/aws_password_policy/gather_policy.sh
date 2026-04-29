@@ -62,7 +62,8 @@ command -v jq >/dev/null || { log_error "jq not found in PATH"; exit "$EXIT_DEPE
 RUN_ROOT="$(ensure_run_tree "$OUTPUT_DIR" "aws_password_policy")"
 RUN_ID="$(basename "$RUN_ROOT")"
 RAW_FILE="${RUN_ROOT}/raw/policy_raw.json"
-PARSED_FILE="${RUN_ROOT}/parsed/${OUTFILE}"
+OUTFILE_BASENAME="$(basename "$OUTFILE")"
+PARSED_FILE="${RUN_ROOT}/parsed/${OUTFILE_BASENAME}"
 META_FILE="${RUN_ROOT}/metadata.json"
 
 if (( DRY_RUN == 1 )); then
@@ -93,6 +94,7 @@ EOF
 echo "$POLICY_JSON" | jq '.' > "$RAW_FILE"
 FINAL_JSON=$(jq -s 'reduce .[] as $item ({}; . * $item)' <(echo "$METADATA") <(echo "$POLICY_JSON"))
 echo "$FINAL_JSON" | jq '.' > "$PARSED_FILE"
+mkdir -p "$(dirname "$OUTFILE")"
 cp "$PARSED_FILE" "$OUTFILE"
 
 write_metadata "$META_FILE" "aws_password_policy" "$RUN_ID" "$0 $*"
