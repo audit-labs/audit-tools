@@ -26,7 +26,7 @@ models without breaking existing scripts.
 
 ** Current Purpose and Phase
 
-Current phase: *Standardization Phase 1 (documentation and templates only)*.
+Current phase: *Standardization Phase 0 (documentation and templates only)*.
 
 What this means:
 - Existing scripts remain usable as-is.
