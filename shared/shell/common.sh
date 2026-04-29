@@ -37,12 +37,18 @@ write_metadata() {
   local tool="$2"
   local run_id="$3"
   local command="$4"
-  cat > "$metadata_file" <<EOF
-{
-  "tool": "${tool}",
-  "run_id": "${run_id}",
-  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "command": "${command}"
+  python3 - "$tool" "$run_id" "$command" > "$metadata_file" <<'PY'
+import json
+import sys
+from datetime import datetime, timezone
+
+tool, run_id, command = sys.argv[1], sys.argv[2], sys.argv[3]
+payload = {
+    "tool": tool,
+    "run_id": run_id,
+    "timestamp_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "command": command,
 }
-EOF
+print(json.dumps(payload, indent=2))
+PY
 }

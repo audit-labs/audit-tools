@@ -14,10 +14,11 @@ def configure_logger(name: str, *, verbose: bool = False, quiet: bool = False) -
     logger.propagate = False
 
     info_level = logging.DEBUG if verbose else logging.INFO
-    warn_level = logging.CRITICAL if quiet else logging.WARNING
+    stdout_level = logging.WARNING if quiet else info_level
+    warn_level = logging.ERROR if quiet else logging.WARNING
 
     stdout_handler = logging.StreamHandler(sys.stdout)
-    stdout_handler.setLevel(info_level)
+    stdout_handler.setLevel(stdout_level)
     stdout_handler.addFilter(lambda rec: rec.levelno < logging.WARNING)
 
     stderr_handler = logging.StreamHandler(sys.stderr)
