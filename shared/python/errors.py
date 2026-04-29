@@ -39,19 +39,27 @@ class ToolError(Exception):
 
 class UsageError(ToolError):
     def __init__(self, message: str, context: dict | None = None) -> None:
-        super().__init__(message=message, exit_code=ExitCodes.USAGE_ERROR, context=context)
+        super().__init__(
+            message=message, exit_code=ExitCodes.USAGE_ERROR, context=context
+        )
 
 
 class AuthError(ToolError):
     def __init__(self, message: str, context: dict | None = None) -> None:
-        super().__init__(message=message, exit_code=ExitCodes.AUTH_ERROR, context=context)
+        super().__init__(
+            message=message, exit_code=ExitCodes.AUTH_ERROR, context=context
+        )
 
 
 class ValidationError(ToolError):
     def __init__(self, message: str, context: dict | None = None) -> None:
-        super().__init__(message=message, exit_code=ExitCodes.VALIDATION_ERROR, context=context)
+        super().__init__(
+            message=message, exit_code=ExitCodes.VALIDATION_ERROR, context=context
+        )
 
 
 class OutputError(ToolError):
     def __init__(self, message: str, context: dict | None = None) -> None:
-        super().__init__(message=message, exit_code=ExitCodes.OUTPUT_ERROR, context=context)
+        super().__init__(
+            message=message, exit_code=ExitCodes.OUTPUT_ERROR, context=context
+        )

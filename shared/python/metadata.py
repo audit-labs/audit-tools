@@ -9,7 +9,16 @@ def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def build_metadata(*, tool: str, run_id: str, command: str, scope: dict | None = None, record_counts: dict | None = None, warnings: list[str] | None = None, errors: list[str] | None = None) -> dict:
+def build_metadata(
+    *,
+    tool: str,
+    run_id: str,
+    command: str,
+    scope: dict | None = None,
+    record_counts: dict | None = None,
+    warnings: list[str] | None = None,
+    errors: list[str] | None = None,
+) -> dict:
     return {
         "tool": tool,
         "run_id": run_id,

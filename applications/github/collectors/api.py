@@ -12,7 +12,9 @@ def paginate(url, cfg, params=None):
 
     while True:
         p["page"] = page
-        resp = requests.get(url, headers=cfg["headers"], params=p, timeout=cfg["timeout"])
+        resp = requests.get(
+            url, headers=cfg["headers"], params=p, timeout=cfg["timeout"]
+        )
         resp.raise_for_status()
         data = resp.json()
         if not data:

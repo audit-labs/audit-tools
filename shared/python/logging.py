@@ -6,7 +6,9 @@ import logging
 import sys
 
 
-def configure_logger(name: str, *, verbose: bool = False, quiet: bool = False) -> logging.Logger:
+def configure_logger(
+    name: str, *, verbose: bool = False, quiet: bool = False
+) -> logging.Logger:
     """Build a stdout/stderr aware logger with predictable behavior."""
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)

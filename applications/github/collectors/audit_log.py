@@ -43,11 +43,13 @@ def audit_log(org, cfg, actions=None):
 
     rows = []
     for e in events:
-        rows.append({
-            "action": e.get("action", ""),
-            "actor": e.get("actor", ""),
-            "repo": e.get("repo", ""),
-            "created_at": e.get("created_at", ""),
-            "org": e.get("org", ""),
-        })
+        rows.append(
+            {
+                "action": e.get("action", ""),
+                "actor": e.get("actor", ""),
+                "repo": e.get("repo", ""),
+                "created_at": e.get("created_at", ""),
+                "org": e.get("org", ""),
+            }
+        )
     return rows

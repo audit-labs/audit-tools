@@ -34,14 +34,18 @@ POLICY_FIELDS = [
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate IAM password policy report.")
-    parser.add_argument("policy_report", help="Path to JSON file produced by gather_policy.sh")
+    parser.add_argument(
+        "policy_report", help="Path to JSON file produced by gather_policy.sh"
+    )
     add_standard_flags(parser, formats=("csv", "json", "txt"))
     return parser.parse_args()
 
 
 def prompt_expected(field_type: str, description: str) -> Optional[Any]:
     while True:
-        raw = input(f"Enter expected value for '{description}' ({field_type}) or press <Enter> to skip: ").strip()
+        raw = input(
+            f"Enter expected value for '{description}' ({field_type}) or press <Enter> to skip: "
+        ).strip()
         if raw == "":
             return None
         if field_type == "int" and raw.isdigit():
@@ -67,7 +71,9 @@ def evaluate(expect: Optional[Any], actual: Any, field_type: str) -> str:
 
 def main() -> int:
     args = parse_args()
-    logger = configure_logger("aws_password_policy.evaluate", verbose=args.verbose, quiet=args.quiet)
+    logger = configure_logger(
+        "aws_password_policy.evaluate", verbose=args.verbose, quiet=args.quiet
+    )
 
     policy_path = Path(args.policy_report)
     if not policy_path.exists():
@@ -118,7 +124,9 @@ def main() -> int:
 
     if args.format == "csv":
         legacy_output = Path(f"policy_audit_{run_id}.csv")
-        legacy_output.write_text(parsed_csv.read_text(encoding="utf-8"), encoding="utf-8")
+        legacy_output.write_text(
+            parsed_csv.read_text(encoding="utf-8"), encoding="utf-8"
+        )
 
     metadata = build_metadata(
         tool="aws_password_policy",
@@ -126,7 +134,9 @@ def main() -> int:
         command=" ".join(sys.argv),
         record_counts={"rules_evaluated": len(csv_rows)},
     )
-    (run_paths["root"] / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    (run_paths["root"] / "metadata.json").write_text(
+        json.dumps(metadata, indent=2), encoding="utf-8"
+    )
 
     logger.info("Audit CSV written to: %s", parsed_csv)
     print("\nSummary:")
