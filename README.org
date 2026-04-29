@@ -1,38 +1,97 @@
 * Audit Tools
 
-*Audit Tools* is a collection of open-source Python scripts and related resources
-intended to support auditors, risk professionals, and data analysts in
-automating common audit procedures and analyses.
+*Audit Tools* is an open-source collection of scripts, SQL queries, and supporting
+resources for audit evidence collection and analysis.
 
-This repository includes practical examples that can be used as-is or adapted to
-specific audit environments.
+The repository is designed for:
+- auditors and risk professionals who need practical evidence gathering tools,
+- analysts who need reproducible output artifacts,
+- contributors who want to add or improve control-focused automation.
 
-** Contents
+This repository currently contains working tools with mixed styles. The ongoing
+standardization effort introduces shared documentation, templates, and output
+models without breaking existing scripts.
 
-| Directory            | Description                                                                  |
-|----------------------+------------------------------------------------------------------------------|
-| =applications/aws/=    | AWS IAM users, password policy, and S3 bucket analysis                       |
-| =applications/github/= | GitHub admin enumeration, audit log, branch protections, and commit analysis |
-| =applications/gitlab/= | GitLab user provisioning, branch protections, approvals, pipelines, and more |
-| =databases/mongo/=     | MongoDB admin enumeration                                                    |
-| =databases/mysql/=     | MySQL admin and password queries                                             |
-| =databases/oracle/=    | Oracle admin queries                                                         |
-| =databases/postgres/=  | PostgreSQL admin and password queries                                        |
-| =databases/sql/=       | Generic SQL admin queries and password analysis                              |
-| =os/linux/=            | Linux OS reporting, password file analysis, and SSH root login checks        |
-| =project_management/=  | Audit project tracking dashboards (Alteryx, Dash, Power BI)                  |
-| =sampling/=            | Random and stratified sampling tools                                         |
+** Repository Areas
+
+| Directory              | Purpose                                                                       |
+|------------------------+-------------------------------------------------------------------------------|
+| =applications/=          | Platform/application evidence scripts (AWS, GitHub, GitLab)                  |
+| =databases/=             | SQL and database evidence queries/scripts                                     |
+| =os/=                    | Operating system evidence scripts                                             |
+| =sampling/=              | Sampling utilities for audit procedures                                       |
+| =project_management/=    | Project support artifacts (dashboards/workbooks)                              |
+| =docs/=                  | Standardization and migration planning documentation                           |
+| =templates/=             | Reusable templates for future tools, metadata, and documentation               |
+
+** Current Purpose and Phase
+
+Current phase: *Standardization Phase 1 (documentation and templates only)*.
+
+What this means:
+- Existing scripts remain usable as-is.
+- New platform scripts are not being added in this phase.
+- Shared standards are being documented to support safer, more consistent
+  follow-up implementation commits.
+
+** Standardized Tool Expectations (Target Model)
+
+Future and migrated tools should:
+- be easy to run independently,
+- preserve raw evidence,
+- produce normalized parsed outputs,
+- separate exceptions from standard results,
+- write run metadata (scope, command, timestamp, tool version),
+- fail safely with clear error reporting,
+- avoid destructive actions,
+- avoid logging or writing credentials.
+
+See detailed standards:
+- =docs/standards-index.md=
+- =docs/script-standards.md=
+- =docs/output-standards.md=
+- =docs/documentation-standards.md=
+
+** Standard Output Model
+
+Target output model for each tool run:
+
+#+begin_src text
+outputs/
+  <tool_name>/
+    <run_id>/
+      raw/
+      parsed/
+      exceptions/
+      evidence/
+      logs/
+      metadata.json
+#+end_src
+
+For an example with sample files, see:
+- =templates/output-tree-example.md=
+- =templates/metadata-template.json=
+
+** Auditor-Focused Usage Guidance
+
+When using any tool in this repository:
+1. Confirm scope first (organization/account/project/host/database).
+2. Capture run command and timestamp in workpapers.
+3. Preserve raw evidence outputs for re-performance.
+4. Document known limitations and uncollected areas.
+5. Validate whether credentials are sourced securely (env/profile/config).
+
+If a script currently prints output only to terminal, save output in your
+workpapers and document the command used.
 
 ** Getting Started
 
 *Clone the Repository*
 
 #+begin_src bash
-git clone https://github.com/audit-lab/audit-toolss
+git clone https://github.com/audit-lab/audit-tools
 cd audit-tools
 #+end_src
-
-#+RESULTS:
 
 *Install Dependencies*
 
@@ -40,45 +99,40 @@ cd audit-tools
 pip install -r requirements.txt
 #+end_src
 
-*Run a Script*
+*Run an Existing Script*
 
-For example, to run the Linux OS report tool:
+Example shell script:
 
 #+begin_src bash
 ./os/linux/report/linux.sh
 #+end_src
 
-Or to run a Python script:
+Example Python script:
 
 #+begin_src bash
 python sampling/sample.py
 #+end_src
 
-Output will be shown in the terminal or saved to a file, depending on the
-script.
+Note: output behavior currently varies by script. Use script-specific README
+files and preserve outputs in audit workpapers.
+
+** Documentation Reading Order
+
+Start with:
+1. =docs/standards-index.md=
+2. =docs/standardization-plan.md=
+3. =docs/repository-structure.md=
+4. =docs/script-standards.md=
+5. =docs/output-standards.md=
+6. =docs/documentation-standards.md=
+7. =docs/migration-plan.md=
 
 ** Contributing
 
-Contributions are welcome. You can contribute by:
+Contributions are welcome, especially:
+- improvements to evidence defensibility,
+- better input validation and safe error handling,
+- documentation clarity for non-engineering auditors,
+- tests and linting support.
 
-- Adding new audit-related scripts
-- Suggesting improvements or feature ideas
-- Enhancing documentation
-- Testing the tools on additional datasets and reporting any issues
-
-To contribute:
-
-1. Fork the repository
-2. Create a new branch:
-   #+begin_src bash
-   git checkout -b my-feature
-   #+end_src
-3. Commit your changes:
-   #+begin_src bash
-   git commit -m 'Added new audit test'
-   #+end_src
-4. Push your branch:
-   #+begin_src bash
-   git push origin my-feature
-   #+end_src
-5. Open a pull request
+Please follow the documented standards and templates before adding new scripts.

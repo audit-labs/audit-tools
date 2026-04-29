@@ -1,0 +1,19 @@
+{
+  "tool_name": "<tool_name>",
+  "tool_version": "0.1.0",
+  "run_id": "<tool_name>_<scope>_<YYYYMMDDTHHMMSSZ>",
+  "run_started_at": "<ISO8601_UTC>",
+  "run_completed_at": "<ISO8601_UTC>",
+  "system_type": "<system_type>",
+  "target_scope": "<scope_expression>",
+  "command": "<exact_command_used>",
+  "user_context": "<local_user_or_service_identity>",
+  "hostname": "<host>",
+  "source_files": [],
+  "output_files": [],
+  "record_counts": {},
+  "warnings": [],
+  "errors": [],
+  "credential_fields_redacted": [],
+  "schema_version": "1.0.0"
+}
