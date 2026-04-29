@@ -1,0 +1,10 @@
+{
+  "tool": "applications-github-audit",
+  "run_id": "20260429T120000Z",
+  "timestamp_utc": "2026-04-29T12:00:00Z",
+  "command": "python applications/github/audit.py --output-dir outputs",
+  "scope": {"organization": "example-org"},
+  "record_counts": {"members": 25, "repos": 42},
+  "warnings": [],
+  "errors": []
+}

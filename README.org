@@ -26,13 +26,13 @@ models without breaking existing scripts.
 
 ** Current Purpose and Phase
 
-Current phase: *Standardization Phase 0 (documentation and templates only)*.
+Current phase: *Standardization Phase 2 (shared framework scaffolding)*.
 
 What this means:
 - Existing scripts remain usable as-is.
 - New platform scripts are not being added in this phase.
-- Shared standards are being documented to support safer, more consistent
-  follow-up implementation commits.
+- Shared standards now include reusable shared Python/shell helpers and schema
+  contracts to support safer, more consistent implementation commits.
 
 ** Standardized Tool Expectations (Target Model)
 
@@ -71,6 +71,12 @@ outputs/
 For an example with sample files, see:
 - =templates/output-tree-example.md=
 - =templates/metadata-template.json=
+
+Shared framework references:
+- =shared/README.md=
+- =shared/python/=
+- =shared/shell/common.sh=
+- =shared/schemas/=
 
 ** Auditor-Focused Usage Guidance
 

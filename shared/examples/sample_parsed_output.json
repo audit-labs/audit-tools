@@ -1,0 +1,4 @@
+[
+  {"control": "user_mfa_enabled", "subject": "alice", "status": "pass"},
+  {"control": "user_mfa_enabled", "subject": "bob", "status": "fail"}
+]

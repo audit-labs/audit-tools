@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Audit Tool Metadata",
+  "type": "object",
+  "required": ["tool", "run_id", "timestamp_utc", "command", "scope", "record_counts", "warnings", "errors"],
+  "properties": {
+    "tool": {"type": "string"},
+    "run_id": {"type": "string"},
+    "timestamp_utc": {"type": "string", "format": "date-time"},
+    "command": {"type": "string"},
+    "scope": {"type": "object"},
+    "record_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "errors": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

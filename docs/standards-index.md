@@ -21,3 +21,11 @@ Use this index to read the standardization guidance in order.
 - `templates/script-header-template.sh`
 - `templates/metadata-template.json`
 - `templates/output-tree-example.md`
+
+
+## Shared framework implementation layer (Phase 2)
+- `shared/README.md`
+- `shared/python/`
+- `shared/shell/common.sh`
+- `shared/schemas/`
+- `shared/examples/`
