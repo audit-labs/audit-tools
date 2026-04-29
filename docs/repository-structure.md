@@ -87,6 +87,6 @@
 - Root documentation: `README.org` → future canonical `README.md`.
 - Flat GitLab scripts under `applications/gitlab/*.py` into per-tool
   directories.
-- Shell scripts writing local reports (`applications/aws/*.sh`, `os/linux/*.sh`)
+- Shell scripts writing local reports (`tools/applications/aws/*/*.sh`, `os/linux/*.sh`)
   to standard `outputs/<tool>/<run_id>/...`.
 - Add missing top-level `tests/`, `outputs/.gitkeep`, and `.gitignore` rules.

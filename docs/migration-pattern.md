@@ -1,8 +1,8 @@
 # Migration Pattern (Phase 3 Pilot)
 
 ## Pilot scripts changed
-- `applications/aws/aws_password_policy/gather_policy.sh`
-- `applications/aws/aws_password_policy/evaluate_policy.py`
+- `tools/applications/aws/password_policy/gather_policy.sh`
+- `tools/applications/aws/password_policy/evaluate_policy.py`
 
 ## What changed
 - Added standard output tree creation via shared helpers.
