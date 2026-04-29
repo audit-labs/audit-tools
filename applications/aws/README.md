@@ -242,3 +242,39 @@ BucketName,Region,PAB_FullyRestricted,Policy_IsPublic,ACL_AllUsersRead,ACL_AllUs
 13bf5920-a09f-47bc-a75a-394a09f18d6a,eu-west-1,FALSE-VULNERABLE,No Policy,FALSE,FALSE,"FALSE"
 c67fa6bd-2fd5-4bc5-825d-587fb535bf2e,eu-west-1,TRUE,No Policy,FALSE,FALSE,"FALSE"
 ```
+
+## Phase 3 pilot migration notes (`aws_password_policy`)
+
+### Audit purpose
+- `gather_policy.sh`: collects current AWS IAM account password policy plus collection metadata.
+- `evaluate_policy.py`: compares collected policy to expected control values and outputs PASS/FAIL rows.
+
+### Required permissions
+- AWS IAM permission for `iam:GetAccountPasswordPolicy`.
+- AWS STS permission for `sts:GetCallerIdentity`.
+- Local dependencies: `aws`, `jq`, and Python 3.
+
+### Expected outputs
+Both scripts now write under:
+`outputs/aws_password_policy/<run_id>/` with `raw/`, `parsed/`, `exceptions/`, `evidence/`, `logs/`, and `metadata.json`.
+
+Compatibility outputs are still written in the current working directory:
+- `gather_policy.sh` writes `policy_report.json`
+- `evaluate_policy.py` writes `policy_audit_<run_id>.csv`
+
+### Limitations
+- `evaluate_policy.py` remains interactive for expected values.
+- `gather_policy.sh` requires valid AWS CLI auth context.
+- `--format` is currently constrained (`json` for gather, `csv|json|txt` accepted by evaluate, CSV remains primary).
+
+### Example commands
+```bash
+./gather_policy.sh --output-dir outputs
+python3 evaluate_policy.py policy_report.json --output-dir outputs
+```
+
+### Evidence interpretation
+- `parsed/policy_report.json` is the canonical gathered artifact.
+- `parsed/policy_audit_<run_id>.csv` is the control test report.
+- `metadata.json` ties artifacts to tool name, run ID, and command context.
+- `exceptions/` contains captured command errors (for example AWS CLI failures).
