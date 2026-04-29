@@ -1,65 +1,80 @@
 #!/usr/bin/env bash
-#
-# gather_policy.sh
-# ----------------
-# 1. Calls AWS CLI to fetch the current IAM password policy.
-# 2. Captures execution metadata (date, user, host, AWS profile/region, etc.).
-# 3. Writes a single JSON document (policy_report.json) that the Python
-#    script can consume.
-#
-# Prerequisites:
-#   • AWS CLI v2 installed and configured (credentials, default region, etc.)
-#   • jq installed (used to merge JSON objects).  If jq is missing the script
-#     will abort with a helpful message.
-#
-# Usage:
-#   $ chmod +x gather_policy.sh
-#   $ ./gather_policy.sh          # creates policy_report.json in the cwd
-#   $ ./gather_policy.sh -o /tmp/my_report.json   # custom output path
-#
+# Gather AWS IAM password policy and write standardized outputs.
 
 set -euo pipefail
 
-# ---------- Helper ----------
-die() { echo "ERROR: $*" >&2; exit 1; }
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+# shellcheck source=/dev/null
+source "${REPO_ROOT}/shared/shell/common.sh"
 
-# ---------- Argument parsing ----------
+OUTPUT_DIR="outputs"
 OUTFILE="policy_report.json"
+VERBOSE=0
+QUIET=0
+DRY_RUN=0
+FORMAT="json"
+
+usage() {
+  cat <<EOF
+Usage: $0 [-o|--output <file>] [--output-dir <dir>] [--verbose] [--quiet] [--dry-run] [--format json]
+EOF
+}
+
 while [[ $# -gt 0 ]]; do
-    case "$1" in
-        -o|--output)
-            shift
-            [[ -z "${1:-}" ]] && die "Missing argument for -o|--output"
-            OUTFILE="$1"
-            ;;
-        -h|--help)
-            echo "Usage: $0 [-o|--output <path-to-json>]"
-            exit 0
-            ;;
-        *)
-            die "Unknown option: $1"
-            ;;
-    esac
-    shift
+  case "$1" in
+    -o|--output)
+      shift
+      [[ -z "${1:-}" ]] && { log_error "Missing argument for -o|--output"; exit "$EXIT_USAGE"; }
+      OUTFILE="$1"
+      ;;
+    --output-dir)
+      shift
+      OUTPUT_DIR="${1:-outputs}"
+      ;;
+    --verbose) VERBOSE=1 ;;
+    --quiet) QUIET=1 ;;
+    --dry-run) DRY_RUN=1 ;;
+    --format)
+      shift
+      FORMAT="${1:-json}"
+      ;;
+    -h|--help)
+      usage
+      exit "$EXIT_OK"
+      ;;
+    *)
+      log_error "Unknown option: $1"
+      usage
+      exit "$EXIT_USAGE"
+      ;;
+  esac
+  shift
 done
 
-# ---------- Verify prerequisites ----------
-command -v aws >/dev/null || die "AWS CLI not found in PATH"
-command -v jq >/dev/null || die "jq not found in PATH – install it (e.g. sudo dnf install jq)"
+[[ "$FORMAT" != "json" ]] && { log_error "Only --format json is supported."; exit "$EXIT_USAGE"; }
 
-# ---------- 1. Pull the IAM password policy ----------
-# If no policy exists, AWS returns a NoSuchEntity error – we capture that
-if ! POLICY_JSON=$(aws iam get-account-password-policy 2>/dev/null); then
-    die "No password policy is defined for this AWS account (AWS returned NoSuchEntity)."
+(( QUIET == 1 )) && log_info() { :; }
+
+command -v aws >/dev/null || { log_error "AWS CLI not found in PATH"; exit "$EXIT_DEPENDENCY"; }
+command -v jq >/dev/null || { log_error "jq not found in PATH"; exit "$EXIT_DEPENDENCY"; }
+
+RUN_ROOT="$(ensure_run_tree "$OUTPUT_DIR" "aws_password_policy")"
+RUN_ID="$(basename "$RUN_ROOT")"
+RAW_FILE="${RUN_ROOT}/raw/policy_raw.json"
+PARSED_FILE="${RUN_ROOT}/parsed/${OUTFILE}"
+META_FILE="${RUN_ROOT}/metadata.json"
+
+if (( DRY_RUN == 1 )); then
+  log_info "Dry run: would fetch AWS password policy and write to ${PARSED_FILE}"
+  exit "$EXIT_OK"
 fi
 
-# ---------- 2. Gather metadata ----------
-#   * timestamp (UTC)
-#   * OS user running the script
-#   * hostname
-#   * current working directory (useful for traceability)
-#   * AWS profile & region (if set)
-#   * AWS caller identity (ARN, account id, user id) – proves *who* ran the command
+if ! POLICY_JSON="$(aws iam get-account-password-policy 2>"${RUN_ROOT}/exceptions/aws_get_policy.err")"; then
+  log_error "No password policy is defined for this AWS account."
+  exit "$EXIT_COLLECTION"
+fi
+
 METADATA=$(cat <<EOF
 {
   "metadata": {
@@ -75,11 +90,12 @@ METADATA=$(cat <<EOF
 EOF
 )
 
-# ---------- 3. Merge policy + metadata ----------
-# The final JSON will have two top‑level keys: "metadata" and "PasswordPolicy"
+echo "$POLICY_JSON" | jq '.' > "$RAW_FILE"
 FINAL_JSON=$(jq -s 'reduce .[] as $item ({}; . * $item)' <(echo "$METADATA") <(echo "$POLICY_JSON"))
+echo "$FINAL_JSON" | jq '.' > "$PARSED_FILE"
+cp "$PARSED_FILE" "$OUTFILE"
 
-# ---------- 4. Write output ----------
-echo "$FINAL_JSON" | jq '.' > "$OUTFILE"
+write_metadata "$META_FILE" "aws_password_policy" "$RUN_ID" "$0 $*"
 
-echo "Password‑policy report written to: $OUTFILE"
+log_info "Password-policy report written to: $PARSED_FILE"
+(( VERBOSE == 1 )) && log_info "Legacy compatibility copy written to: $OUTFILE"
