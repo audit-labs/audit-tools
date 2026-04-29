@@ -59,6 +59,20 @@ done
 command -v aws >/dev/null || { log_error "AWS CLI not found in PATH"; exit "$EXIT_DEPENDENCY"; }
 command -v jq >/dev/null || { log_error "jq not found in PATH"; exit "$EXIT_DEPENDENCY"; }
 
+get_hostname() {
+  if command -v hostname >/dev/null 2>&1; then
+    hostname
+    return
+  fi
+
+  if [[ -r /proc/sys/kernel/hostname ]]; then
+    cat /proc/sys/kernel/hostname
+    return
+  fi
+
+  uname -n 2>/dev/null || echo "unknown"
+}
+
 RUN_ROOT="$(ensure_run_tree "$OUTPUT_DIR" "aws_password_policy")"
 RUN_ID="$(basename "$RUN_ROOT")"
 RAW_FILE="${RUN_ROOT}/raw/policy_raw.json"
@@ -81,7 +95,7 @@ METADATA=$(cat <<EOF
   "metadata": {
     "report_timestamp_utc": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
     "os_user": "$(id -un)",
-    "hostname": "$(hostname)",
+    "hostname": "$(get_hostname)",
     "working_directory": "$(pwd)",
     "aws_profile": "${AWS_PROFILE:-default}",
     "aws_region": "${AWS_DEFAULT_REGION:-unknown}",
