@@ -51,11 +51,11 @@
 - **Risk**: Existing users depend on old output file paths.
   - **Mitigation**: transition period with compatibility symlinks or duplicate writes.
 
-## Open questions for implementation pass
-1. Should Python become the default for new tools, with shell only for platform-native commands?
-2. Is `pyproject.toml` acceptable as primary dependency source while retaining `requirements.txt` export?
-3. Which scripts are considered authoritative for each control area where duplicates exist?
-4. What minimum supported Python version should be declared?
+## Implementation decisions (resolved)
+1. **Default language for new tools**: Python is the default for new tooling. Shell should be limited to platform-native orchestration/collection where Python cannot replace native command usage cleanly.
+2. **Dependency management**: Use `pyproject.toml` as the primary source of Python dependencies and tooling configuration, while continuing to export/maintain `requirements.txt` for compatibility.
+3. **Authoritative scripts per control area**: Each control area should have one canonical script. If multiple scripts exist, keep alternatives only when there is a documented tradeoff (for example, compatibility/performance/privilege differences), and record the canonical-vs-alternative roles in the local README.
+4. **Minimum Python version**: Declare Python 3 as the minimum supported baseline.
 
 ## Specific files likely needing changes early
 - `applications/gitlab/*.py` (credential handling + CLI + structured output).
