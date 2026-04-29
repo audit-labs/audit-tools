@@ -1,6 +1,6 @@
 * Audit Tools
 
-*Audit Tools* is an open-source collection of scripts, SQL queries, and supporting
+*Audit Tools* is an open-source collection of scripts, queries, and supporting
 resources for audit evidence collection and analysis.
 
 The repository is designed for:
@@ -14,15 +14,15 @@ models without breaking existing scripts.
 
 ** Repository Areas
 
-| Directory              | Purpose                                                                       |
-|------------------------+-------------------------------------------------------------------------------|
-| =applications/=          | Platform/application evidence scripts (AWS, GitHub, GitLab)                  |
-| =databases/=             | SQL and database evidence queries/scripts                                     |
-| =os/=                    | Operating system evidence scripts                                             |
-| =sampling/=              | Sampling utilities for audit procedures                                       |
-| =project_management/=    | Project support artifacts (dashboards/workbooks)                              |
-| =docs/=                  | Standardization and migration planning documentation                           |
-| =templates/=             | Reusable templates for future tools, metadata, and documentation               |
+| Directory           | Purpose                                                          |
+|---------------------+------------------------------------------------------------------|
+| =applications/=       | Platform/application evidence scripts (AWS, GitHub, GitLab)      |
+| =databases/=          | SQL and database evidence queries/scripts                        |
+| =os/=                 | Operating system evidence scripts                                |
+| =sampling/=           | Sampling utilities for audit procedures                          |
+| =project_management/= | Project support artifacts (dashboards/workbooks)                 |
+| =docs/=               | Standardization and migration planning documentation             |
+| =templates/=          | Reusable templates for future tools, metadata, and documentation |
 
 ** Current Purpose and Phase
 
@@ -79,7 +79,7 @@ When using any tool in this repository:
 2. Capture run command and timestamp in workpapers.
 3. Preserve raw evidence outputs for re-performance.
 4. Document known limitations and uncollected areas.
-5. Validate whether credentials are sourced securely (env/profile/config).
+5. Validate whether credentials are sourced securely (=env= / =profile= / =config=).
 
 If a script currently prints output only to terminal, save output in your
 workpapers and document the command used.
@@ -89,9 +89,11 @@ workpapers and document the command used.
 *Clone the Repository*
 
 #+begin_src bash
-git clone https://github.com/audit-lab/audit-tools
+git clone https://github.com/audit-labs/audit-tools
 cd audit-tools
 #+end_src
+
+#+RESULTS:
 
 *Install Dependencies*
 

@@ -22,14 +22,17 @@ outputs/
 ## Folder intent
 - `raw/`: unmodified API responses, command output, source extracts.
 - `parsed/`: normalized CSV/JSON for analysis.
-- `exceptions/`: records that need manual follow-up (missing fields, API denials, parse failures).
-- `evidence/`: auditor-facing summary artifacts (tables, narrative notes, screenshots if relevant).
+- `exceptions/`: records that need manual follow-up (missing fields, API
+  denials, parse failures).
+- `evidence/`: auditor-facing summary artifacts (tables, narrative notes,
+  screenshots if relevant).
 - `logs/`: operational logs.
 
 ## CSV/JSON schema conventions
 - Use lowercase `snake_case` column keys.
 - Include stable unique keys where possible (`record_id`, `source_id`).
-- Add `source_system`, `collected_at`, and `tool_name` for traceability in parsed outputs.
+- Add `source_system`, `collected_at`, and `tool_name` for traceability in
+  parsed outputs.
 - Nulls should be explicit (`""` in CSV, `null` in JSON).
 
 ## Evidence metadata schema (`metadata.json`)
@@ -59,7 +62,7 @@ Recommended fields:
 - `dependencies`
 - `api_rate_limit_observed`
 
-## Example metadata.json
+## Example `metadata.json`
 ```json
 {
   "tool_name": "github_org_audit",

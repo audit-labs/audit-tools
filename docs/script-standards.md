@@ -1,12 +1,14 @@
 # Script Standards
 
 ## Scope
-Applies to all future tools and all migrated existing tools in `applications/`, `databases/`, `os/`, and `sampling/`.
+Applies to all future tools and all migrated existing tools in `applications/`,
+`databases/`, `os/`, and `sampling/`.
 
 ## Naming conventions
-- Script/tool folder: `snake_case` control-focused name (`branch_protections`, `iam_assignments`).
+- Script/tool folder: `snake_case` control-focused name (`branch_protections`,
+  `iam_assignments`).
 - Main executable:
-  - Python: `main.py` (or package entrypoint).
+  - Python: `main.py` (or package entry point).
   - Shell: `run.sh` only when shell is justified.
 - Output dataset files: `snake_case` nouns (`members.csv`, `exceptions.json`).
 
@@ -32,9 +34,10 @@ Recommended additions:
 - Print concise usage on argument failure; exit code `2`.
 
 ## Authentication / credential handling
-- Credentials must come from environment variables, profile chains, or external secret manager references.
-- Never hardcode tokens/keys (current GitLab scripts do this; must be removed).
-- Never echo raw credentials in stdout, logs, metadata, or output files.
+- Credentials must come from environment variables, profile chains, or external
+  secret manager references.
+- Never hard-code tokens/keys (current GitLab scripts do this; must be removed).
+- Never echo raw credentials in `stdout`, logs, metadata, or output files.
 - Log only credential source type (e.g., `auth_source: env:GITHUB_TOKEN`).
 
 ## Logging conventions
@@ -68,5 +71,7 @@ Recommended additions:
 ## Security constraints
 - Read-only behavior unless explicitly documented and opt-in.
 - Minimum API permissions documented per tool.
-- Redact identity fields only when legally required; otherwise preserve audit traceability.
-- Protect PII/secret-bearing outputs through clear warnings and optional masking flags.
+- Redact identity fields only when legally required; otherwise preserve audit
+  traceability.
+- Protect PII/secret-bearing outputs through clear warnings and optional masking
+  flags.

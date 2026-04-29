@@ -1,7 +1,8 @@
 # <Tool Name>
 
 ## Audit Purpose
-Describe the control objective, risk addressed, and why this evidence matters in an audit.
+Describe the control objective, risk addressed, and why this evidence matters in
+an audit.
 
 ## What This Tool Collects
 - **Raw evidence:**

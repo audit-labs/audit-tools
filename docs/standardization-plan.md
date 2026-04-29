@@ -1,27 +1,36 @@
 # Audit-Tools Standardization Plan (Pre-Implementation)
 
 ## Purpose
-This plan establishes a practical, auditor-friendly standard for future development in this repository before adding new platform scripts.
+This plan establishes a practical, auditor-friendly standard for future
+development in this repository before adding new platform scripts.
 
 ## Assessment summary of current repository
 
 ### Structure and usage patterns
-- Repository is organized by domain (`applications`, `databases`, `os`, `sampling`) but implementation style is highly mixed.
-- Some tools are packaged and orchestrated (GitHub audit), while others are single-file ad hoc scripts.
-- Output behavior varies: terminal-only, local flat files, custom timestamp folders, or no persisted evidence.
+- Repository is organized by domain (`applications`, `databases`, `os`,
+  `sampling`) but implementation style is highly mixed.
+- Some tools are packaged and orchestrated (GitHub audit), while others are
+  single-file ad hoc scripts.
+- Output behavior varies: terminal-only, local flat files, custom timestamp
+  folders, or no persisted evidence.
 
 ### Dependencies and runtime
-- Global dependencies are minimal (`pandas`, `requests`, `dash`, `plotly`) and not tied to per-tool requirements.
-- Several shell tools require external binaries (`aws`, `jq`, `netstat`, distro-specific commands) but these are inconsistently documented.
+- Global dependencies are minimal (`pandas`, `requests`, `dash`, `plotly`) and
+  not tied to per-tool requirements.
+- Several shell tools require external binaries (`aws`, `jq`, `netstat`,
+  distribution-specific commands) but these are inconsistently documented.
 
 ### Naming and documentation patterns
-- Script names are mostly descriptive but not consistently scoped by control objective.
+- Script names are mostly descriptive but not consistently scoped by control
+  objective.
 - README depth varies significantly by domain.
-- Root README contains a typo in clone URL and is Org format, while subdocs are mostly Markdown.
+- Root README contains a typo in clone URL and is Org format, while sub-docs are
+  mostly Markdown.
 
 ### Authentication handling
 - GitHub uses env/config pattern (good baseline).
-- Multiple GitLab scripts hardcode token placeholders in source (must be remediated before extension).
+- Multiple GitLab scripts hard-code token placeholders in source (must be
+  remediated before extension).
 - AWS scripts rely on ambient CLI auth (acceptable if explicitly documented).
 
 ### Output/evidence consistency
@@ -34,7 +43,8 @@ This plan establishes a practical, auditor-friendly standard for future developm
 1. CLI argument sets differ (or are absent).
 2. Output roots and naming are inconsistent.
 3. Data schemas vary without documented contracts.
-4. Error handling ranges from silent fallback to immediate exit without normalized exception records.
+4. Error handling ranges from silent fallback to immediate exit without
+   normalized exception records.
 5. Authentication practices are inconsistent and sometimes insecure.
 6. No unified test or lint strategy.
 
@@ -59,28 +69,33 @@ This plan establishes a practical, auditor-friendly standard for future developm
 
 ### Example A: GitLab flat script
 - **Before**: token in code, prints to terminal, no output package.
-- **After**: env/config auth, writes standard output tree, includes `metadata.json`, parsed CSV/JSON, and exception records.
+- **After**: env/config auth, writes standard output tree, includes
+  `metadata.json`, parsed CSV/JSON, and exception records.
 
 ### Example B: Linux shell report
 - **Before**: single `report.txt`, mixed command/file output.
-- **After**: raw command captures in `raw/`, normalized checks in `parsed/`, failed commands in `exceptions/`, plus run log and metadata.
+- **After**: raw command captures in `raw/`, normalized checks in `parsed/`,
+  failed commands in `exceptions/`, plus run log and metadata.
 
 ## Dependency and quality strategy
 - Short term: retain `requirements.txt` for compatibility.
 - Medium term: introduce `pyproject.toml` for tooling and consistent dev setup.
-- Add lint/format baselines (`ruff` + `black` for Python, `shellcheck` + `shfmt` for shell).
+- Add lint/format baselines (`ruff` + `black` for Python, `shellcheck` + `shfmt`
+  for shell).
 - Add minimal test harness with smoke tests for all CLI entrypoints.
 
 ## Security and defensibility guidance
 - Never write credentials to outputs/logs.
 - Minimize privileges and document required scopes.
 - Keep raw evidence immutable per run.
-- Ensure chain of custody via metadata (`who`, `when`, `scope`, `command`, `tool version`).
+- Ensure chain of custody via metadata (`who`, `when`, `scope`, `command`, `tool
+  version`).
 - Log what was not collected and why.
 
 ## Phased execution plan (for follow-up commits)
 - Execute phases exactly as documented in `docs/migration-plan.md`.
-- Prioritize credential-remediation and output normalization before adding new scripts.
+- Prioritize credential-remediation and output normalization before adding new
+  scripts.
 
 ## Concise checklist for next implementation pass
 - [ ] Add shared CLI/output/metadata utilities.
