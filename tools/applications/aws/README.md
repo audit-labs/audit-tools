@@ -1,10 +1,10 @@
-# `aws_iam_users.sh`
+# `iam_assignments/collect.sh`
 
 *Note*: This example uses an account titled `cmc`, which has access provisioned to it through IAM.
 
 ``` bash
-chmod +x aws_iam_users.sh
-./aws_iam_users.sh
+chmod +x iam_assignments/collect.sh
+./iam_assignments/collect.sh
 ```
 
 ``` text
@@ -103,8 +103,8 @@ To test a password policy against AWS, I have created two steps:
 Run the script on your CloudShell or using the `aws` command
 
 ``` bash
-chmod +x gather_policy.sh
-./gather_policy.sh
+chmod +x password_policy/gather_policy.sh
+./password_policy/gather_policy.sh
 ```
 
 This will produce a JSON file as the output, with both metadata and the password policy/
@@ -144,7 +144,7 @@ This will produce a JSON file as the output, with both metadata and the password
 Use this file as the input to the `evaluate_policy.py` script. This Python script will ask you what you expect the values to be (e.g., what are the requirements in the company's policy?).
 
 ``` bash
-uv run evaluate_policy.py policy_report.json
+uv run password_policy/evaluate_policy.py policy_report.json
 ```
 
 This will ask you for inputs dynamically (all are optional) and will return both a table of results in the shell, as well as a CSV file for further testing and/or documentation.
@@ -206,13 +206,13 @@ Rule#,Policy‑Item,Expected,Actual,Result
 10,Hard expiry (no grace period),false,false,PASS
 ```
 
-# `aws_s3_buckets.sh`
+# `s3_public_access/collect.sh`
 
 This script requires one non-interactive step. Simply run the script:
 
 ``` bash
-chmod +x aws_s3_buckets.sh
-./aws_s3_buckets.sh
+chmod +x s3_public_access/collect.sh
+./s3_public_access/collect.sh
 ```
 
 The shell will show you each bucket discovered during the scanning process, as well as the final result. This final result is a combination of the bucket's Public Access Block (PAB), Policy Status (IsPublic), and ACLs (AllUsers Group).
@@ -269,8 +269,8 @@ Compatibility outputs are still written in the current working directory:
 
 ### Example commands
 ```bash
-./gather_policy.sh --output-dir outputs
-python3 evaluate_policy.py policy_report.json --output-dir outputs
+./password_policy/gather_policy.sh --output-dir outputs
+python3 password_policy/evaluate_policy.py policy_report.json --output-dir outputs
 ```
 
 ### Evidence interpretation

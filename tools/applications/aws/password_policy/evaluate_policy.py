@@ -9,10 +9,15 @@ import json
 import sys
 from pathlib import Path
 from typing import Any, Optional
-from shared.python.cli import add_standard_flags
-from shared.python.logging import configure_logger
-from shared.python.metadata import build_metadata
-from shared.python.outputs import ensure_run_tree
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from shared.python.cli import add_standard_flags  # noqa: E402
+from shared.python.logging import configure_logger  # noqa: E402
+from shared.python.metadata import build_metadata  # noqa: E402
+from shared.python.outputs import ensure_run_tree  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:

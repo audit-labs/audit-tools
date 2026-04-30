@@ -69,7 +69,7 @@
 
 ## Specific files likely needing changes early
 - `applications/gitlab/*.py` (credential handling + CLI + structured output).
-- `applications/aws/*.sh` and `applications/aws/aws_password_policy/*` (output
+- `tools/applications/aws/*/*.sh` and `tools/applications/aws/password_policy/*` (output
   normalization + metadata).
 - `applications/github/audit.py` and reporters (new output tree + metadata
   schema).
