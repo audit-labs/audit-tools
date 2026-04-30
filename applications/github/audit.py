@@ -90,8 +90,10 @@ def run():
         sections.append((label, len(rows)))
         return rows
 
-    collect("Member roster",          members.member_roster,         "member_roster.csv",          org, cfg)
-    collect("2FA disabled",           members.two_factor_disabled,   "two_factor_disabled.csv",    org, cfg)
+    collect("Member roster", members.member_roster, "member_roster.csv", org, cfg)
+    collect(
+        "2FA disabled", members.two_factor_disabled, "two_factor_disabled.csv", org, cfg
+    )
 
     print("Fetching repo collaborators (shared cache)...")
     try:
@@ -100,16 +102,51 @@ def run():
         print(f"  Error fetching collaborators: {e}", file=sys.stderr)
         repo_collabs = []
 
-    collect("Outside collaborators",  members.outside_collaborators, "outside_collaborators.csv",  org, cfg, repo_collabs)
-    collect("Privileged access",      members.privileged_access,     "privileged_access.csv",      org, cfg, repo_collabs)
-    collect("Pending invitations",    members.pending_invitations,   "pending_invitations.csv",    org, cfg)
-    collect("Team permissions",       members.team_permissions,      "team_permissions.csv",       org, cfg)
-    collect("Permission matrix",      members.permission_matrix,     "permission_matrix.csv",      org, cfg, repo_collabs)
-    collect("Branch protections",     branch_protections.branch_protections, "branch_protections.csv", org, cfg)
-    collect("Commits",                commits.commits,               "commits.csv",                org, cfg, args.branch)
+    collect(
+        "Outside collaborators",
+        members.outside_collaborators,
+        "outside_collaborators.csv",
+        org,
+        cfg,
+        repo_collabs,
+    )
+    collect(
+        "Privileged access",
+        members.privileged_access,
+        "privileged_access.csv",
+        org,
+        cfg,
+        repo_collabs,
+    )
+    collect(
+        "Pending invitations",
+        members.pending_invitations,
+        "pending_invitations.csv",
+        org,
+        cfg,
+    )
+    collect(
+        "Team permissions", members.team_permissions, "team_permissions.csv", org, cfg
+    )
+    collect(
+        "Permission matrix",
+        members.permission_matrix,
+        "permission_matrix.csv",
+        org,
+        cfg,
+        repo_collabs,
+    )
+    collect(
+        "Branch protections",
+        branch_protections.branch_protections,
+        "branch_protections.csv",
+        org,
+        cfg,
+    )
+    collect("Commits", commits.commits, "commits.csv", org, cfg, args.branch)
 
     if args.include_audit_log:
-        collect("Audit log",          audit_log.audit_log,           "audit_log.csv",              org, cfg)
+        collect("Audit log", audit_log.audit_log, "audit_log.csv", org, cfg)
 
     print()
     csv_reporter.write_summary(output_dir, org, sections)
