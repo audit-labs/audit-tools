@@ -1,85 +1,35 @@
-"""
-Checks SQL Server user data for compliance with Windows policies.
-"""
-
-# Import packages
+#!/usr/bin/env python3
+"""Evaluate SQL login password settings with standardized outputs."""
+import argparse, json, sys
 import pandas as pd
+from shared.python.cli import add_standard_flags
+from shared.python.outputs import ensure_run_tree
+from shared.python.metadata import build_metadata
 
-# Load the data into a pandas DataFrame
-df_input = pd.read_csv("./data.csv")
-
-
-# Function to apply rules and generate report
 def apply_rules_and_report(df):
-    """
-    Apply defined rules against the input data.
-
-            Parameters:
-                df (pandas.DataFrame): SQL login data
-
-            Returns:
-                report (list): List of dictionaries containing test results
-    """
-    report = []
-    for _, row in df.iterrows():
-        result = {
-            "Name": row["name"],
-            "Type Check": "",
-            "Policy Check": "",
-            "Expiration Check": "",
-            "Reason": "",
-        }
-
-        # Check the type_desc
-        if row["type_desc"] == "SQL_LOGIN":
-            result["Type Check"] = "SQL_LOGIN"
-        elif row["type_desc"] == "WINDOWS_LOGIN":
-            result["Type Check"] = "N/A"
-            result["Reason"] = "Refer to Windows password policy."
-        else:
-            result["Type Check"] = "Manual Review"
-            result["Reason"] = "Reviewer to manually review."
-
-        # Check if password policy is enforced
-        if row["is_policy_checked"] == 1:
-            result["Policy Check"] = "PASS"
-            result["Reason"] += """Password policy is enforced. Reviewer to
-            check the assigned policy."""
-        else:
-            result["Policy Check"] = "FAIL"
-            result["Reason"] += "Password policy is not enforced."
-
-        # Check if password expiration is enforced
-        if row["is_expiration_checked"] == 1:
-            result["Expiration Check"] = "PASS"
-            result["Reason"] += """Password expiration is enforced. Reviewer to
-            check the expiration policy."""
-        else:
-            result["Expiration Check"] = "FAIL"
-            result["Reason"] += "Password expiration is not enforced."
-
-        report.append(result)
-
+    report=[]
+    for _,row in df.iterrows():
+        reason=[]
+        t='SQL_LOGIN' if row['type_desc']=='SQL_LOGIN' else ('N/A' if row['type_desc']=='WINDOWS_LOGIN' else 'Manual Review')
+        if t=='N/A': reason.append('Refer to Windows password policy.')
+        if t=='Manual Review': reason.append('Reviewer to manually review.')
+        policy='PASS' if row['is_policy_checked']==1 else 'FAIL'
+        reason.append('Password policy is enforced.' if policy=='PASS' else 'Password policy is not enforced.')
+        exp='PASS' if row['is_expiration_checked']==1 else 'FAIL'
+        reason.append('Password expiration is enforced.' if exp=='PASS' else 'Password expiration is not enforced.')
+        report.append({'Name':row['name'],'Type Check':t,'Policy Check':policy,'Expiration Check':exp,'Reason':' '.join(reason)})
     return report
 
-
-# Main function to run the script
 def main():
-    """
-    Apply defined rules against the input data and print the results.
-    """
-    # Apply rules and generate report
-    report = apply_rules_and_report(df_input)
-    report_df = pd.DataFrame(report)
-
-    # Do not truncate output
-    pd.set_option("display.expand_frame_repr", True)
-    pd.set_option("display.width", 1000)
-    pd.set_option("display.max_colwidth", 1000)
-
-    # Print the report
-    print(report_df)
-
-
-if __name__ == "__main__":
-    main()
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--input',default='./data.csv')
+    p=add_standard_flags(p,formats=('csv','json'))
+    a=p.parse_args(); run=ensure_run_tree(a.output_dir,'sql_passwords'); run_id=run['root'].name
+    if a.dry_run: print(f'Dry run: would read {a.input}'); return
+    df=pd.read_csv(a.input); rep=apply_rules_and_report(df); rdf=pd.DataFrame(rep)
+    rdf.to_csv(run['evidence']/ 'password_review.csv',index=False)
+    (rdf.to_json(run['parsed']/ 'password_review.json',orient='records',indent=2) if a.format=='json' else rdf.to_csv(run['parsed']/ 'password_review.csv',index=False))
+    df.to_csv(run['raw']/ 'input.csv',index=False)
+    (run['root']/ 'metadata.json').write_text(json.dumps(build_metadata(tool='sql_passwords',run_id=run_id,command=' '.join(sys.argv),record_counts={'input_rows':len(df),'report_rows':len(rdf)}),indent=2))
+    if not a.quiet: print(rdf)
+if __name__=='__main__': main()

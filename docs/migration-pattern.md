@@ -58,3 +58,7 @@ outputs/aws_password_policy/<run_id>/
 - Confirm output tree creation in dry-run or real run
 - Validate `metadata.json` against `shared/schemas/metadata.schema.json` when practical
 - `git status --short`
+
+
+## Migration status (2026-04-30)
+All actively maintained executable tools should emit the standard output tree and metadata.json; legacy SQL/query artifacts remain source-only evidence templates.

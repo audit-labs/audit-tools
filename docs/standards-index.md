@@ -29,3 +29,9 @@ Use this index to read the standardization guidance in order.
 - `shared/shell/common.sh`
 - `shared/schemas/`
 - `shared/examples/`
+
+
+## Repository standardization status (2026-04-30)
+- Python and shell entrypoint tools are being aligned to shared runtime helpers.
+- Output model is standardized under outputs/<tool>/<run_id>/.
+- Legacy command compatibility is retained where practical.
