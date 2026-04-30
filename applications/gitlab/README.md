@@ -158,3 +158,6 @@ Project 68701468 Members:
 Username: ccleberg, Access Level: 50
 Username: project_68701468_bot_2c7ee010a479c0e48cdb4c7c5cfae886, Access Level: 40
 ```
+
+## Standardized Runtime
+All GitLab scripts now support shared runtime flags and write outputs under `outputs/<tool>/<run_id>/` with `raw`, `parsed`, `exceptions`, `evidence`, `logs`, and `metadata.json`.

@@ -144,3 +144,7 @@ Contributions are welcome, especially:
 - tests and linting support.
 
 Please follow the documented standards and templates before adding new scripts.
+
+
+* Standardization Update (2026-04-30)
+This repository now prioritizes standardized run artifacts in =outputs/<tool>/<run_id>/= for migrated executable tools.

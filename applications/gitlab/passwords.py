@@ -1,39 +1,20 @@
-"""
-Verify if password policies are enforced in a self-hosted GitLab instance.
-
-    Ref: https://docs.gitlab.com/api/settings/
-"""
-
+#!/usr/bin/env python3
 import requests
+from common import build_parser, init_run, write_artifacts, write_meta
 
-BASE_URL = "https://gitlab.com/api/v4"
-PRIVATE_TOKEN = "your_access_token"
-TIMEOUT = 30
-
-URL = f"{BASE_URL}/application/settings"
-HEADERS = {"PRIVATE-TOKEN": PRIVATE_TOKEN}
-
-if __name__ == "__main__":
-    # Get application settings
-    response = requests.get(URL, headers=HEADERS, timeout=TIMEOUT)
-    if response.status_code == 200:
-        settings = response.json()
-        minimum_password_length = settings.get("minimum_password_length", "Not set")
-        password_number_required = settings.get("password_number_required", "Not set")
-        password_symbol_required = settings.get("password_symbol_required", "Not set")
-        password_uppercase_required = settings.get(
-            "password_uppercase_required", "Not set"
-        )
-        password_lowercase_required = settings.get(
-            "password_lowercase_required", "Not set"
-        )
-
-        print(f"Password Length: {minimum_password_length}")
-        print(f"Password Number Required: {password_number_required}")
-        print(f"Password Symbol Required: {password_symbol_required}")
-        print(f"Password Uppercase Required: {password_uppercase_required}")
-        print(f"Password Lowercase Required: {password_lowercase_required}")
-    else:
-        print(
-            f"Failed to fetch application settings: {response.status_code}, {response.text}"
-        )
+def main():
+    p=build_parser('Collect GitLab password policy settings')
+    p.add_argument('--timeout',type=int,default=30)
+    a=p.parse_args(); run,run_id=init_run(a,'gitlab_passwords')
+    if a.dry_run: print('Dry run: would collect /application/settings'); return 0
+    r=requests.get(f"{a.base_url}/application/settings",headers={'PRIVATE-TOKEN':a.private_token},timeout=a.timeout)
+    if r.status_code!=200:
+        err=f"Failed to fetch settings: {r.status_code}"
+        (run['exceptions']/ 'request_error.txt').write_text(err)
+        write_meta(run,'gitlab_passwords',run_id,a,errors=[err]); return 1
+    settings=r.json(); keep={k:settings.get(k) for k in ['minimum_password_length','password_number_required','password_symbol_required','password_uppercase_required','password_lowercase_required']}
+    write_artifacts(run,'password_settings',keep); write_meta(run,'gitlab_passwords',run_id,a,counts={'settings_fields':len(keep)})
+    if not a.quiet:
+      for k,v in keep.items(): print(f"{k}: {v}")
+    return 0
+if __name__=='__main__': raise SystemExit(main())

@@ -1,34 +1,37 @@
-"""
-Creates a sample from a CSV or Excel file based on user-defined SAMPLE_SIZE.
-"""
-
-# Import packages
+#!/usr/bin/env python3
+"""Simple random sampling helper with standardized outputs."""
+import argparse, json
+from pathlib import Path
 import pandas as pd
+from shared.python.cli import add_standard_flags
+from shared.python.outputs import ensure_run_tree
+from shared.python.metadata import build_metadata
 
-# Define the sample size
-SAMPLE_SIZE = 25
+TOOL="sampling_random"
 
-# Import the data to a pandas DataFrame
-df = pd.read_csv("FILENAME_GOES_HERE.csv")
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument("input_file")
+    p.add_argument("--sample-size",type=int,default=25)
+    p=add_standard_flags(p,formats=("csv","json"))
+    a=p.parse_args()
+    run=ensure_run_tree(a.output_dir,TOOL)
+    run_id=run['root'].name
+    if a.dry_run:
+        print(f"Dry run: would sample {a.sample_size} rows from {a.input_file}")
+        return
+    df=pd.read_excel(a.input_file) if a.input_file.endswith((".xlsx",".xls")) else pd.read_csv(a.input_file)
+    sample=df.sample(a.sample_size)
+    sample.to_csv(run['evidence']/"sample.csv",index=False)
+    if a.format=="json":
+        sample.to_json(run['parsed']/"sample.json",orient="records",indent=2)
+    else:
+        sample.to_csv(run['parsed']/"sample.csv",index=False)
+    (run['raw']/"input_snapshot.csv").write_text(df.head(200).to_csv(index=False))
+    meta=build_metadata(tool=TOOL,run_id=run_id,command=" ".join(__import__('sys').argv),record_counts={"input_rows":len(df),"sample_rows":len(sample)})
+    (run['root']/"metadata.json").write_text(json.dumps(meta,indent=2))
+    if not a.quiet:
+        print(sample)
 
-# ALTERNATIVE: If you use Excel, use this instead. Supports xls, xlsx, xlsm,
-# xlsb, odf, ods and odt file extensions.
-# df = pd.read_excel("FILENAME_GOES_HERE.xlsx")
-
-# Print totals prior to sampling
-print("Dataframe size (rows, columns): ", df.shape)
-
-# Sample
-sample = df.sample(SAMPLE_SIZE)
-print("Sample size: ", SAMPLE_SIZE)
-print("Sample:\n", sample)
-
-# ALTERNATIVE: Replacement Samples
-#
-# If you want replacement samples (e.g., 10 samples & 3 replacements), you will
-# need to increase sample size to the total you want (e.g., 13). If that is
-# larger than the population, you will need to use the `replace=True` parameter.
-#
-# # Sample Size: 25 + 5 replacement samples
-# SAMPLE_SIZE = 30
-# sample = df.sample(SAMPLE_SIZE, replace=True)
+if __name__=='__main__':
+    main()

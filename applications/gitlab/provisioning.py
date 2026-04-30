@@ -1,32 +1,17 @@
-"""
-Track user creation and deletion events in GitLab with timestamps.
-"""
-
+#!/usr/bin/env python3
 import requests
+from common import build_parser, init_run, write_artifacts, write_meta
 
-BASE_URL = "https://gitlab.com/api/v4"
-PRIVATE_TOKEN = "your_access_token"
-GROUP_ID = "your_group_id"
-TIMEOUT = 30
-
-URL = f"{BASE_URL}/groups/{GROUP_ID}/audit_events"
-HEADERS = {"PRIVATE-TOKEN": PRIVATE_TOKEN}
-
-if __name__ == "__main__":
-    # Get audit events
-    response = requests.get(URL, headers=HEADERS, timeout=TIMEOUT)
-    if response.status_code == 200:
-        audit_events = response.json()
-        for event in audit_events:
-            if event["entity_type"] == "User" or event["entity_type"] == "Group":
-                action = event["event_name"]
-                member_id = event["details"].get("member_id")
-                created_at = event["created_at"]
-                author = event["author_id"]
-                if action in ["member_created", "member_destroyed", "member_updated"]:
-                    print(
-                        f"Group: {GROUP_ID}\n",
-                        f"   {created_at} : Action: {action}, Member: {member_id}, Author: {author}",
-                    )
-    else:
-        print(f"Failed to fetch audit events: {response.status_code}, {response.text}")
+def main():
+    p=build_parser('Collect GitLab group provisioning audit events')
+    p.add_argument('--group-id',required=True); p.add_argument('--timeout',type=int,default=30)
+    a=p.parse_args(); run,run_id=init_run(a,'gitlab_provisioning')
+    if a.dry_run: print('Dry run complete'); return 0
+    r=requests.get(f"{a.base_url}/groups/{a.group_id}/audit_events",headers={'PRIVATE-TOKEN':a.private_token},timeout=a.timeout)
+    if r.status_code!=200: (run['exceptions']/ 'request_error.txt').write_text(str(r.status_code)); write_meta(run,'gitlab_provisioning',run_id,a,errors=[f'status {r.status_code}']); return 1
+    events=[e for e in r.json() if e.get('event_name') in ['member_created','member_destroyed','member_updated']]
+    write_artifacts(run,'provisioning_events',events); write_meta(run,'gitlab_provisioning',run_id,a,counts={'events':len(events)})
+    if not a.quiet:
+      for e in events: print(e.get('created_at'),e.get('event_name'))
+    return 0
+if __name__=='__main__': raise SystemExit(main())

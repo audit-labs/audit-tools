@@ -1,59 +1,20 @@
-"""
-Review CI/CD pipelines and their configurations for a specific GitLab project.
-"""
-
+#!/usr/bin/env python3
 import requests
+from common import build_parser, init_run, write_artifacts, write_meta
 
-BASE_URL = "https://gitlab.com/api/v4"
-PRIVATE_TOKEN = "your_access_token"
-PROJECT_ID = "project_id"
-TIMEOUT = 30
-
-HEADERS = {"PRIVATE-TOKEN": PRIVATE_TOKEN}
-
-if __name__ == "__main__":
-    page = 1
-    per_page = 100
-
+def main():
+    p=build_parser('Collect GitLab pipeline summaries')
+    p.add_argument('--project-id',required=True); p.add_argument('--timeout',type=int,default=30)
+    a=p.parse_args(); run,run_id=init_run(a,'gitlab_pipelines')
+    if a.dry_run: print('Dry run complete'); return 0
+    page=1; per_page=100; rows=[]
     while True:
-        response = requests.get(
-            f"{BASE_URL}/projects/{PROJECT_ID}/pipelines",
-            headers=HEADERS,
-            params={"page": page, "per_page": per_page},
-            timeout=TIMEOUT,
-        )
-        if response.status_code == 200:
-            pipelines = response.json()
-            if not pipelines:
-                break
-
-            for pipeline in pipelines:
-                pipeline_id = pipeline["id"]
-                status = pipeline["status"]
-                ref = pipeline["ref"]
-                created_at = pipeline["created_at"]
-                duration = pipeline.get("duration", "N/A")
-
-                print(f"Pipeline ID: {pipeline_id}")
-                print(f"  Status: {status}")
-                print(f"  Ref: {ref}")
-                print(f"  Created At: {created_at}")
-                print(f"  Duration: {duration} seconds")
-
-                detail_response = requests.get(
-                    f"{BASE_URL}/projects/{PROJECT_ID}/pipelines/{pipeline_id}",
-                    headers=HEADERS,
-                    timeout=TIMEOUT,
-                )
-                if detail_response.status_code == 200:
-                    pipeline_details = detail_response.json()
-                    print(f"  Configuration: {pipeline_details.get('config', 'N/A')}")
-                else:
-                    print(
-                        f"  Failed to fetch pipeline details: {detail_response.status_code}, {detail_response.text}"
-                    )
-
-            page += 1
-        else:
-            print(f"Failed to fetch pipelines: {response.status_code}, {response.text}")
-            break
+      r=requests.get(f"{a.base_url}/projects/{a.project_id}/pipelines",headers={'PRIVATE-TOKEN':a.private_token},params={'page':page,'per_page':per_page},timeout=a.timeout)
+      if r.status_code!=200: (run['exceptions']/ 'request_error.txt').write_text(str(r.status_code)); write_meta(run,'gitlab_pipelines',run_id,a,errors=[f'status {r.status_code}']); return 1
+      batch=r.json()
+      if not batch: break
+      rows.extend(batch); page+=1
+    write_artifacts(run,'pipelines',rows); write_meta(run,'gitlab_pipelines',run_id,a,counts={'pipelines':len(rows)})
+    if not a.quiet: print(f'Pipelines: {len(rows)}')
+    return 0
+if __name__=='__main__': raise SystemExit(main())

@@ -1,53 +1,25 @@
-"""
-Gather all members of specified GitLab groups and projects and their access levels.
-
-        Ref: https://docs.gitlab.com/api/members/
-"""
-
+#!/usr/bin/env python3
 import requests
+from common import build_parser, init_run, write_artifacts, write_meta
 
-BASE_URL = "https://gitlab.com/api/v4"
-PRIVATE_TOKEN = "your_access_token"
-GROUP_IDS = ["group_id_1", "group_id_2"]  # Add your group IDs here
-PROJECT_IDS = ["project_id_1", "project_id_2"]  # Add your project IDs here
-TIMEOUT = 30
+def members(base,token,timeout,kind,id_):
+    r=requests.get(f"{base}/{kind}/{id_}/members",headers={'PRIVATE-TOKEN':token},timeout=timeout)
+    return r.status_code,r.json() if r.status_code==200 else []
 
-HEADERS = {"PRIVATE-TOKEN": PRIVATE_TOKEN}
-
-
-def get_members(url, name):
-    response = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
-    if response.status_code == 200:
-        members = response.json()
-        print(f"\n{name} Members:")
-        for member in members:
-            print(
-                f"Username: {member['username']}, Access Level: {member['access_level']}"
-            )
-    else:
-        print(
-            f"Failed to fetch members for {name}: {response.status_code}, {response.text}"
-        )
-
-
-if __name__ == "__main__":
-    access_levels = """Access Level Roles:
-    0  : No access
-    5  : Minimal access
-    10 : Guest
-    15 : Planner
-    20 : Reporter
-    30 : Developer
-    40 : Maintainer
-    50 : Owner
-    60 : Admin
-    """
-    print(access_levels)
-
-    for group_id in GROUP_IDS:
-        group_url = f"{BASE_URL}/groups/{group_id}/members"
-        get_members(group_url, f"Group {group_id}")
-
-    for project_id in PROJECT_IDS:
-        project_url = f"{BASE_URL}/projects/{project_id}/members"
-        get_members(project_url, f"Project {project_id}")
+def main():
+    p=build_parser('Collect GitLab group/project members')
+    p.add_argument('--group-ids',nargs='*',default=[]); p.add_argument('--project-ids',nargs='*',default=[]); p.add_argument('--timeout',type=int,default=30)
+    a=p.parse_args(); run,run_id=init_run(a,'gitlab_users')
+    if a.dry_run: print('Dry run complete'); return 0
+    out=[]; errors=[]
+    for gid in a.group_ids:
+      code,data=members(a.base_url,a.private_token,a.timeout,'groups',gid)
+      (out.append({'scope':'group','id':gid,'members':data}) if code==200 else errors.append(f'group {gid} status {code}'))
+    for pid in a.project_ids:
+      code,data=members(a.base_url,a.private_token,a.timeout,'projects',pid)
+      (out.append({'scope':'project','id':pid,'members':data}) if code==200 else errors.append(f'project {pid} status {code}'))
+    write_artifacts(run,'members',out); write_meta(run,'gitlab_users',run_id,a,counts={'scopes':len(out),'members':sum(len(i['members']) for i in out)},errors=errors)
+    if not a.quiet:
+      for item in out: print(item['scope'],item['id'],len(item['members']))
+    return 1 if errors else 0
+if __name__=='__main__': raise SystemExit(main())
