@@ -88,17 +88,19 @@ def audit_log(org, cfg, actions=None, lookback_days=DEFAULT_LOOKBACK_DAYS):
 
     rows = []
     for e in _dedupe_events(events):
-        rows.append({
-            "action": e.get("action", ""),
-            "actor": e.get("actor", ""),
-            "repo": e.get("repo", ""),
-            "branch_or_pattern": _branch_or_pattern(e),
-            "operation_type": e.get("operation_type", ""),
-            "summary": _event_summary(e),
-            "details": _event_details(e),
-            "created_at": _format_created_at(e.get("created_at", "")),
-            "org": e.get("org", ""),
-        })
+        rows.append(
+            {
+                "action": e.get("action", ""),
+                "actor": e.get("actor", ""),
+                "repo": e.get("repo", ""),
+                "branch_or_pattern": _branch_or_pattern(e),
+                "operation_type": e.get("operation_type", ""),
+                "summary": _event_summary(e),
+                "details": _event_details(e),
+                "created_at": _format_created_at(e.get("created_at", "")),
+                "org": e.get("org", ""),
+            }
+        )
     return rows
 
 

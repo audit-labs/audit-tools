@@ -31,16 +31,18 @@ def commits(org, cfg, branch="main"):
             commit = c.get("commit", {})
             author = commit.get("author", {})
             stats = c.get("stats", {})
-            rows.append({
-                "repo": repo_name,
-                "branch": branch,
-                "sha": c.get("sha", "")[:12],
-                "author_name": author.get("name", ""),
-                "author_email": author.get("email", ""),
-                "date": author.get("date", ""),
-                "message": commit.get("message", "").splitlines()[0],
-                "additions": stats.get("additions", ""),
-                "deletions": stats.get("deletions", ""),
-            })
+            rows.append(
+                {
+                    "repo": repo_name,
+                    "branch": branch,
+                    "sha": c.get("sha", "")[:12],
+                    "author_name": author.get("name", ""),
+                    "author_email": author.get("email", ""),
+                    "date": author.get("date", ""),
+                    "message": commit.get("message", "").splitlines()[0],
+                    "additions": stats.get("additions", ""),
+                    "deletions": stats.get("deletions", ""),
+                }
+            )
 
     return rows

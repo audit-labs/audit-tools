@@ -31,10 +31,10 @@ def write_summary(output_dir, org, sections):
     """
     path = os.path.join(output_dir, "summary.txt")
     lines = [
-        f"GitHub Audit Package",
+        "GitHub Audit Package",
         f"Org: {org}",
-        f"",
-        f"Section                        Rows",
+        "",
+        "Section                        Rows",
         f"{'─' * 40}",
     ]
     for label, count in sections:
