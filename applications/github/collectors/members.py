@@ -50,22 +50,31 @@ def fetch_repo_collaborators(org, cfg):
             )
         except requests.HTTPError as e:
             if e.response is not None and e.response.status_code == 403:
-                print(f"  Skipping {repo_name}: collaborators endpoint returned 403", file=sys.stderr)
+                print(
+                    f"  Skipping {repo_name}: collaborators endpoint returned 403",
+                    file=sys.stderr,
+                )
                 continue
             raise
-        results.append({
-            "repo": repo_name,
-            "visibility": repo["visibility"],
-            "collaborators": collabs,
-        })
+        results.append(
+            {
+                "repo": repo_name,
+                "visibility": repo["visibility"],
+                "collaborators": collabs,
+            }
+        )
     return results
 
 
 def member_roster(org, cfg):
-    members = paginate(f"https://api.github.com/orgs/{org}/members", cfg, {"role": "all"})
+    members = paginate(
+        f"https://api.github.com/orgs/{org}/members", cfg, {"role": "all"}
+    )
     owners = {
         m["login"]
-        for m in paginate(f"https://api.github.com/orgs/{org}/members", cfg, {"role": "owner"})
+        for m in paginate(
+            f"https://api.github.com/orgs/{org}/members", cfg, {"role": "owner"}
+        )
     }
     return [
         {
@@ -104,18 +113,22 @@ def outside_collaborators(org, cfg, repo_collabs):
     """
     outside = {
         m["login"]
-        for m in paginate(f"https://api.github.com/orgs/{org}/outside_collaborators", cfg)
+        for m in paginate(
+            f"https://api.github.com/orgs/{org}/outside_collaborators", cfg
+        )
     }
     rows = []
     for entry in repo_collabs:
         for c in entry["collaborators"]:
             if c["login"] in outside:
-                rows.append({
-                    "login": c["login"],
-                    "repo": entry["repo"],
-                    "permission": _permission_level(c.get("permissions", {})),
-                    "repo_visibility": entry["visibility"],
-                })
+                rows.append(
+                    {
+                        "login": c["login"],
+                        "repo": entry["repo"],
+                        "permission": _permission_level(c.get("permissions", {})),
+                        "repo_visibility": entry["visibility"],
+                    }
+                )
     return rows
 
 
@@ -128,12 +141,14 @@ def privileged_access(org, cfg, repo_collabs):
     for entry in repo_collabs:
         for c in entry["collaborators"]:
             if c.get("permissions", {}).get("admin"):
-                rows.append({
-                    "login": c["login"],
-                    "repo": entry["repo"],
-                    "permission": "admin",
-                    "repo_visibility": entry["visibility"],
-                })
+                rows.append(
+                    {
+                        "login": c["login"],
+                        "repo": entry["repo"],
+                        "permission": "admin",
+                        "repo_visibility": entry["visibility"],
+                    }
+                )
     return rows
 
 
@@ -146,13 +161,15 @@ def pending_invitations(org, cfg):
         if created:
             dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
             age_days = (now - dt).days
-        rows.append({
-            "login": inv.get("login") or inv.get("email", "unknown"),
-            "role": inv.get("role", ""),
-            "invited_by": inv.get("inviter", {}).get("login", ""),
-            "created_at": created,
-            "age_days": age_days,
-        })
+        rows.append(
+            {
+                "login": inv.get("login") or inv.get("email", "unknown"),
+                "role": inv.get("role", ""),
+                "invited_by": inv.get("inviter", {}).get("login", ""),
+                "created_at": created,
+                "age_days": age_days,
+            }
+        )
     return rows
 
 
@@ -160,16 +177,22 @@ def team_permissions(org, cfg):
     rows = []
     for team in paginate(f"https://api.github.com/orgs/{org}/teams", cfg):
         slug = team["slug"]
-        team_members = paginate(f"https://api.github.com/orgs/{org}/teams/{slug}/members", cfg)
-        team_repos = paginate(f"https://api.github.com/orgs/{org}/teams/{slug}/repos", cfg)
+        team_members = paginate(
+            f"https://api.github.com/orgs/{org}/teams/{slug}/members", cfg
+        )
+        team_repos = paginate(
+            f"https://api.github.com/orgs/{org}/teams/{slug}/repos", cfg
+        )
         member_logins = ", ".join(m["login"] for m in team_members) or "(none)"
         for repo in team_repos:
-            rows.append({
-                "team": team["name"],
-                "repo": repo["name"],
-                "permission": _permission_level(repo.get("permissions", {})),
-                "members": member_logins,
-            })
+            rows.append(
+                {
+                    "team": team["name"],
+                    "repo": repo["name"],
+                    "permission": _permission_level(repo.get("permissions", {})),
+                    "members": member_logins,
+                }
+            )
     return rows
 
 
@@ -181,10 +204,12 @@ def permission_matrix(org, cfg, repo_collabs):
     rows = []
     for entry in repo_collabs:
         for c in entry["collaborators"]:
-            rows.append({
-                "repo": entry["repo"],
-                "login": c["login"],
-                "permission": _permission_level(c.get("permissions", {})),
-                "visibility": entry["visibility"],
-            })
+            rows.append(
+                {
+                    "repo": entry["repo"],
+                    "login": c["login"],
+                    "permission": _permission_level(c.get("permissions", {})),
+                    "visibility": entry["visibility"],
+                }
+            )
     return rows
