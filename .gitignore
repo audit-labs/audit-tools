@@ -8,3 +8,4 @@ __pycache__/
 
 # Audit output
 applications/github/output/
+output/
