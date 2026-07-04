@@ -1,0 +1,15 @@
+GitHub Audit Package
+Org: audit-labs
+
+Section                        Rows
+────────────────────────────────────────
+Member roster                      1
+2FA disabled                       0
+Outside collaborators              0
+Privileged access                  5
+Pending invitations                0
+Team permissions                   2
+Permission matrix                  5
+Branch protections                 7
+Commits                            140
+Audit log branch/ruleset changes   8

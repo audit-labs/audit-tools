@@ -1,0 +1,6 @@
+repo,login,permission,visibility
+.github,ccleberg,admin,public
+audit-tools,ccleberg,admin,public
+internal-docs,ccleberg,admin,private
+tutorials,ccleberg,admin,public
+audit-labs.dev,ccleberg,admin,public

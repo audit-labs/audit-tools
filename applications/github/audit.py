@@ -11,7 +11,7 @@ Usage:
     python audit.py
     python audit.py --org my-org
     python audit.py --org my-org --out ./output
-    python audit.py --org my-org --branch main --include-audit-log
+    python audit.py --org my-org --branch main
 
 Output:
     <out>/github_audit_<org>_<date>/
@@ -24,7 +24,7 @@ Output:
         permission_matrix.csv
         branch_protections.csv
         commits.csv
-        audit_log.csv           (only with --include-audit-log)
+        audit_log.csv
         summary.txt
 """
 
@@ -59,7 +59,7 @@ def parse_args():
     parser.add_argument(
         "--include-audit-log",
         action="store_true",
-        help="Include audit log collection (requires GitHub Enterprise).",
+        help=argparse.SUPPRESS,
     )
     return parser.parse_args()
 
@@ -107,9 +107,7 @@ def run():
     collect("Permission matrix",      members.permission_matrix,     "permission_matrix.csv",      org, cfg, repo_collabs)
     collect("Branch protections",     branch_protections.branch_protections, "branch_protections.csv", org, cfg)
     collect("Commits",                commits.commits,               "commits.csv",                org, cfg, args.branch)
-
-    if args.include_audit_log:
-        collect("Audit log",          audit_log.audit_log,           "audit_log.csv",              org, cfg)
+    collect("Audit log branch/ruleset changes", audit_log.audit_log, "audit_log.csv",              org, cfg)
 
     print()
     csv_reporter.write_summary(output_dir, org, sections)
