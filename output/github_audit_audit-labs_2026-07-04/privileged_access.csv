@@ -1,6 +1,0 @@
-login,repo,permission,repo_visibility
-ccleberg,.github,admin,public
-ccleberg,audit-tools,admin,public
-ccleberg,internal-docs,admin,private
-ccleberg,tutorials,admin,public
-ccleberg,audit-labs.dev,admin,public
