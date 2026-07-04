@@ -1,0 +1,8 @@
+repo,branch,protected,required_reviews,dismiss_stale_reviews,require_code_owner_reviews,required_status_checks,enforce_admins,restrictions
+.github,main,False,,,,,,
+audit-tools,main,False,,,,,,
+internal-docs,main,False,,,,,,
+tutorials,ccleberg-patch-1,False,,,,,,
+tutorials,ccleberg-patch-2,False,,,,,,
+tutorials,main,False,,,,,,
+audit-labs.dev,main,False,,,,,,
