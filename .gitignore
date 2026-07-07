@@ -4,8 +4,10 @@ readme.html
 
 # Python
 __pycache__/
+**/__pycache__/
 *.py[cod]
 
 # Audit output
 applications/github/output/
 output/
+**/output/
