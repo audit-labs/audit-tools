@@ -100,7 +100,9 @@ def merge_options(args: Namespace, config: dict[str, object]) -> SimpleNamespace
     if merged["method"] is None:
         raise AuditSamplingError("--method is required unless provided by --config.")
     if merged["method"] not in {"random", "stratified", "validate-only"}:
-        raise AuditSamplingError("--method must be random, stratified, or validate-only.")
+        raise AuditSamplingError(
+            "--method must be random, stratified, or validate-only."
+        )
     if merged["sample_size"] is not None:
         merged["sample_size"] = int(merged["sample_size"])
     if merged["seed"] is not None:
