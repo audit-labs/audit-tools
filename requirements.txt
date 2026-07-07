@@ -1,4 +1,8 @@
 pandas
+openpyxl
+xlrd
+PyYAML
+pytest
 requests
 dash
 plotly

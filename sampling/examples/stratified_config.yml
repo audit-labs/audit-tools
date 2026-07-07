@@ -1,0 +1,7 @@
+input: sampling/examples/changes_population.csv
+id_column: Change ID
+method: stratified
+stratify_column: Change Type
+strata_counts: Normal=3,Emergency=2,Standard=2
+seed: 20260707
+out: ./output

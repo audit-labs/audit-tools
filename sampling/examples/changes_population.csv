@@ -1,0 +1,15 @@
+Change ID,Change Type,Risk Rating,Status,In Scope
+CHG001,Normal,High,Closed,Yes
+CHG002,Normal,Medium,Closed,Yes
+CHG003,Normal,Low,Open,No
+CHG004,Normal,Medium,Closed,Yes
+CHG005,Normal,High,Closed,Yes
+CHG006,Emergency,High,Closed,Yes
+CHG007,Emergency,High,Closed,Yes
+CHG008,Emergency,Medium,Open,Yes
+CHG009,Emergency,Low,Closed,No
+CHG010,Standard,Low,Closed,Yes
+CHG011,Standard,Medium,Closed,Yes
+CHG012,Standard,Low,Open,No
+CHG013,Standard,High,Closed,Yes
+CHG014,Standard,Medium,Closed,Yes
