@@ -28,7 +28,7 @@ specific audit environments.
 *Clone the Repository*
 
 #+begin_src bash
-git clone https://github.com/audit-lab/audit-toolss
+git clone https://github.com/audit-labs/audit-tools
 cd audit-tools
 #+end_src
 

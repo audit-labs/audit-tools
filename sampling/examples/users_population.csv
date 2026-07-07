@@ -1,0 +1,13 @@
+User ID,Name,Role,Status,In Scope
+U001,Avery Chen,Administrator,Active,Yes
+U002,Blake Rivera,Developer,Active,Yes
+U003,Casey Morgan,Analyst,Inactive,No
+U004,Drew Patel,Reviewer,Active,Yes
+U005,Emerson Lee,Developer,Active,Yes
+U006,Finley Brooks,Analyst,Inactive,No
+U007,Gray Taylor,Administrator,Active,Yes
+U008,Harper Smith,Developer,Active,Yes
+U009,Indigo Clark,Reviewer,Active,No
+U010,Jordan Kim,Analyst,Active,Yes
+U011,Kai Johnson,Developer,Inactive,No
+U012,Logan Davis,Reviewer,Active,Yes
