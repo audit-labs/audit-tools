@@ -86,7 +86,9 @@ def largest_remainder_allocation(
     return allocation
 
 
-def random_sample(population: pd.DataFrame, sample_size: int, seed: int) -> pd.DataFrame:
+def random_sample(
+    population: pd.DataFrame, sample_size: int, seed: int
+) -> pd.DataFrame:
     return population.sample(n=sample_size, random_state=seed)
 
 
@@ -108,7 +110,9 @@ def stratified_sample(
                 f"requested {requested}. Use --allow-shortfall to continue."
             )
         if actual_count:
-            sampled = stratum_population.sample(n=actual_count, random_state=seed + index)
+            sampled = stratum_population.sample(
+                n=actual_count, random_state=seed + index
+            )
             samples.append(sampled)
         summary.append(
             {

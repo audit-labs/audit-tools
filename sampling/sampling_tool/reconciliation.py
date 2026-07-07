@@ -21,7 +21,10 @@ def build_reconciliation(
         ("Duplicate IDs", duplicate_id_count),
         ("Excluded rows", excluded_rows),
         ("Validated population rows", validated_rows),
-        ("Requested sample size", "" if requested_sample_size is None else requested_sample_size),
+        (
+            "Requested sample size",
+            "" if requested_sample_size is None else requested_sample_size,
+        ),
         ("Final sample size", final_sample_size),
         ("Unsampled population rows", unsampled),
     ]
