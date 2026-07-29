@@ -1,9 +1,11 @@
 > **NOTE**: Authentication uses the standard AWS credential chain (environment
 > variables, shared config/credentials, SSO profiles, instance roles). This tool
 > never handles access keys directly. Read-only permissions are enough — IAM
-> `Get*`/`List*`, S3 `s3:GetBucket*` + `s3:ListAllMyBuckets`, and for the SSO
+> `Get*`/`List*`, S3 `s3:GetBucket*` + `s3:ListAllMyBuckets`, EC2
+> `ec2:DescribeRegions`/`DescribeSecurityGroups`, `cloudtrail:DescribeTrails` +
+> `GetTrailStatus`, `config:DescribeConfigurationRecorders*`, and for the SSO
 > check `sso:List*`/`sso:Describe*`, `identitystore:Describe*`, and
-> `organizations:ListAccounts`.
+> `organizations:ListAccounts`. The SecurityAudit managed policy covers these.
 
 ---
 
@@ -42,9 +44,16 @@ Creates a directory: `<out>/aws_audit_<profile>_<YYYY-MM-DD>/`
 |---|---|
 | `iam_users.csv` | IAM users with MFA status, access-key count/age, console password, last use |
 | `password_policy.csv` | Account IAM password policy (length, complexity, rotation, reuse) |
+| `account_security.csv` | Account summary — root MFA, root access keys, and resource counts |
 | `s3_public_access.csv` | Per-bucket Public Access Block, policy public status, and ACL public exposure |
+| `open_security_groups.csv` | Security-group ingress rules open to `0.0.0.0/0` or `::/0`, across all regions |
+| `cloudtrail.csv` | CloudTrail trails — logging status, multi-region, log-file validation |
+| `config_recorders.csv` | AWS Config recording status per region (gaps are flagged) |
 | `sso_assignments.csv` | IAM Identity Center permission-set assignments per account (Identity Center + Organizations) |
 | `summary.txt` | Row counts per section |
+
+`open_security_groups.csv` and `config_recorders.csv` scan every enabled region,
+so they take longer on accounts with many regions.
 
 Checks that aren't available (no password policy, no Identity Center instance,
 missing permissions) are skipped with a warning; the rest still run.

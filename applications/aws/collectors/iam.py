@@ -1,11 +1,35 @@
 """
-Collect IAM user hygiene and the account password policy.
+Collect IAM user hygiene, the account password policy, and account-level
+security summary (root MFA, root access keys).
 """
 
 import sys
 from datetime import datetime, timezone
 
 from botocore.exceptions import ClientError
+
+
+def account_security(cfg):
+    """
+    One row of account-level security signals from the IAM account summary:
+    whether the root user has MFA and access keys, plus resource counts.
+    """
+    iam = cfg["session"].client("iam")
+    s = iam.get_account_summary()["SummaryMap"]
+    return [
+        {
+            "root_mfa_enabled": bool(s.get("AccountMFAEnabled", 0)),
+            "root_access_keys_present": bool(s.get("AccountAccessKeysPresent", 0)),
+            "root_signing_certs_present": bool(
+                s.get("AccountSigningCertificatesPresent", 0)
+            ),
+            "mfa_devices": s.get("MFADevices", 0),
+            "users": s.get("Users", 0),
+            "groups": s.get("Groups", 0),
+            "roles": s.get("Roles", 0),
+            "policies": s.get("Policies", 0),
+        }
+    ]
 
 
 def iam_users(cfg):

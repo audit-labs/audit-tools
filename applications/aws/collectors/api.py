@@ -35,3 +35,9 @@ def account_id(cfg):
         return cfg["session"].client("sts").get_caller_identity()["Account"]
     except Exception:
         return ""
+
+
+def enabled_regions(cfg):
+    """Return the region names enabled for the account (for region-scoped checks)."""
+    ec2 = cfg["session"].client("ec2", region_name=cfg.get("region") or "us-east-1")
+    return [r["RegionName"] for r in ec2.describe_regions().get("Regions", [])]
