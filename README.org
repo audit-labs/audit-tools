@@ -7,6 +7,12 @@ automating common audit procedures and analyses.
 This repository includes practical examples that can be used as-is or adapted to
 specific audit environments.
 
+It also ships an interactive terminal UI (=audit_tui.py=) that walks you through
+running an audit against GitHub, GitLab, or AWS — pick a platform, enter
+connection details, choose which checks to run, and watch live progress.
+
+[[./docs/screenshots/menu.png]]
+
 ** Contents
 
 | Directory            | Description                                                                  |
@@ -65,6 +71,11 @@ To pick a platform and be walked through an audit interactively:
 #+begin_src bash
 python audit_tui.py
 #+end_src
+
+Each run writes the same package the platform's =audit.py= produces — one CSV per
+check plus a summary — with a progress bar and per-check results:
+
+[[./docs/screenshots/run.png]]
 
 See =tui/README.md= for details. GitHub, GitLab, and AWS are supported.
 
