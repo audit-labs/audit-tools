@@ -23,6 +23,12 @@ export AWS_DEFAULT_REGION=us-east-1    # optional
 export AWS_AUDIT_ACCOUNT=my-account    # optional; only for the SSO check
 ```
 
+If you authenticate with `aws login` / IAM Identity Center (SSO), those
+credentials use the AWS Common Runtime provider, which needs the `crt` extra.
+It is included via `botocore[crt]` in `requirements.txt`; if you installed
+boto3 separately, run `pip install "botocore[crt]"`. Without it you'll see
+`MissingDependencyException: ... requires an additional dependency`.
+
 ## Usage
 
 ```bash
