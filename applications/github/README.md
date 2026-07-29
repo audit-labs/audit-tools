@@ -47,7 +47,7 @@ Creates a directory: `<out>/github_audit_<org>_<YYYY-MM-DD>/`
 | `pending_invitations.csv` | Invitations not yet accepted, with age in days |
 | `team_permissions.csv` | Teams, their repos, permissions, and members |
 | `permission_matrix.csv` | Full user/repo/permission cross-reference |
-| `branch_protections.csv` | Branch protection settings across all repos |
+| `branch_protections.csv` | Per-branch protection across all repos, from classic branch protection **and** rulesets (`protection_source` records which) |
 | `commits.csv` | Commit history across all repos for the target branch |
 | `org_security.csv` | Org security settings (2FA requirement, default permission, repo creation, secret scanning defaults) |
 | `webhooks.csv` | Org and per-repo webhooks, flagging plain-HTTP delivery and disabled SSL verification |
