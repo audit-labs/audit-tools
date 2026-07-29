@@ -1,3 +1,59 @@
+> **NOTE**: Authentication uses the standard AWS credential chain (environment
+> variables, shared config/credentials, SSO profiles, instance roles). This tool
+> never handles access keys directly. Read-only permissions are enough — IAM
+> `Get*`/`List*`, S3 `s3:GetBucket*` + `s3:ListAllMyBuckets`, and for the SSO
+> check `sso:List*`/`sso:Describe*`, `identitystore:Describe*`, and
+> `organizations:ListAccounts`.
+
+---
+
+# `audit.py` — Unified AWS Audit Tool
+
+Runs all collectors against the account reachable with your active AWS
+credentials and writes a timestamped audit package to disk. This is the tool the
+interactive TUI (`audit_tui.py`) drives.
+
+## Setup
+
+```bash
+export AWS_PROFILE=my-profile          # optional; else the default chain
+export AWS_DEFAULT_REGION=us-east-1    # optional
+export AWS_AUDIT_ACCOUNT=my-account    # optional; only for the SSO check
+```
+
+## Usage
+
+```bash
+# Basic run — uses the active credentials / default profile
+python audit.py
+
+# Named profile and region, custom output directory
+python audit.py --profile my-profile --region us-east-1 --out ./output
+
+# SSO assignments for a specific account in the organization
+python audit.py --account my-account
+```
+
+## Output
+
+Creates a directory: `<out>/aws_audit_<profile>_<YYYY-MM-DD>/`
+
+| File | Contents |
+|---|---|
+| `iam_users.csv` | IAM users with MFA status, access-key count/age, console password, last use |
+| `password_policy.csv` | Account IAM password policy (length, complexity, rotation, reuse) |
+| `s3_public_access.csv` | Per-bucket Public Access Block, policy public status, and ACL public exposure |
+| `sso_assignments.csv` | IAM Identity Center permission-set assignments per account (Identity Center + Organizations) |
+| `summary.txt` | Row counts per section |
+
+Checks that aren't available (no password policy, no Identity Center instance,
+missing permissions) are skipped with a warning; the rest still run.
+
+The shell scripts below remain for CloudShell or CLI-only environments where
+Python and boto3 aren't set up.
+
+---
+
 # `aws_iam_users.sh`
 
 *Note*: This example uses an account titled `cmc`, which has access provisioned to it through IAM.
