@@ -27,7 +27,11 @@ from applications.github.collectors import (
     audit_log,
     branch_protections,
     commits,
+    deploy_keys,
     members,
+    org_settings,
+    security_alerts,
+    webhooks,
 )
 from applications.github.reporters import csv_reporter
 
@@ -86,6 +90,28 @@ CHECKS: list[Check] = [
     ),
     Check("commits", "Commits", commits.commits, "commits.csv", arg="branch"),
     Check(
+        "org_security",
+        "Org security settings",
+        org_settings.org_security,
+        "org_security.csv",
+    ),
+    Check("webhooks", "Webhooks", webhooks.webhooks, "webhooks.csv"),
+    Check("deploy_keys", "Deploy keys", deploy_keys.deploy_keys, "deploy_keys.csv"),
+    Check(
+        "secret_scanning",
+        "Secret scanning alerts",
+        security_alerts.secret_scanning,
+        "secret_scanning.csv",
+        note="requires GitHub Advanced Security",
+    ),
+    Check(
+        "dependabot_alerts",
+        "Dependabot alerts",
+        security_alerts.dependabot_alerts,
+        "dependabot_alerts.csv",
+        note="requires GitHub Advanced Security",
+    ),
+    Check(
         "audit_log",
         "Audit log (branch/ruleset changes)",
         audit_log.audit_log,
@@ -94,7 +120,9 @@ CHECKS: list[Check] = [
     ),
 ]
 
-DEFAULT_SELECTION = [c.key for c in CHECKS if c.key != "audit_log"]
+# Off by default: checks needing Advanced Security or Enterprise Cloud.
+_OFF_BY_DEFAULT = {"secret_scanning", "dependabot_alerts", "audit_log"}
+DEFAULT_SELECTION = [c.key for c in CHECKS if c.key not in _OFF_BY_DEFAULT]
 
 
 # --- Config + output helpers ------------------------------------------------
