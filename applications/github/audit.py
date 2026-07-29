@@ -34,7 +34,16 @@ import sys
 from datetime import date
 
 import config
-from collectors import audit_log, branch_protections, commits, members
+from collectors import (
+    audit_log,
+    branch_protections,
+    commits,
+    deploy_keys,
+    members,
+    org_settings,
+    security_alerts,
+    webhooks,
+)
 from reporters import csv_reporter
 
 
@@ -144,6 +153,25 @@ def run():
         cfg,
     )
     collect("Commits", commits.commits, "commits.csv", org, cfg, args.branch)
+    collect(
+        "Org security settings", org_settings.org_security, "org_security.csv", org, cfg
+    )
+    collect("Webhooks", webhooks.webhooks, "webhooks.csv", org, cfg)
+    collect("Deploy keys", deploy_keys.deploy_keys, "deploy_keys.csv", org, cfg)
+    collect(
+        "Secret scanning alerts",
+        security_alerts.secret_scanning,
+        "secret_scanning.csv",
+        org,
+        cfg,
+    )
+    collect(
+        "Dependabot alerts",
+        security_alerts.dependabot_alerts,
+        "dependabot_alerts.csv",
+        org,
+        cfg,
+    )
     collect(
         "Audit log branch/ruleset changes",
         audit_log.audit_log,
