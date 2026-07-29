@@ -1,0 +1,144 @@
+"""
+Platform descriptors that let the TUI drive any collector runner.
+
+Each Platform declares its connection form (``fields``), its checks, and how to
+compute the output directory and run the audit. The screens in app.py are
+written against this interface, so adding a platform is data, not new UI.
+"""
+
+import os
+from collections.abc import Callable
+from dataclasses import dataclass, field
+
+from tui import github_runner, gitlab_runner
+from tui.common import Check
+
+
+@dataclass(frozen=True)
+class Field:
+    """One input on the connection screen."""
+
+    key: str
+    label: str
+    placeholder: str = ""
+    default: str = ""
+    password: bool = False
+    required: bool = False
+    env: str | None = None  # environment variable used to pre-fill the value
+
+
+@dataclass(frozen=True)
+class Platform:
+    key: str
+    label: str
+    id_key: str  # which field is the audit subject (org / group)
+    fields: list[Field]
+    checks: list[Check]
+    default_selection: list[str]
+    output_dir: Callable[[dict], str]  # (settings) -> path
+    run: Callable[..., object]  # (settings, output_dir, selected_keys, on_event)
+    enabled: bool = True
+    note: str = field(default="")
+
+
+def _prefill(f: Field) -> str:
+    if f.env:
+        value = os.environ.get(f.env, "").strip()
+        if value:
+            return value
+    return f.default
+
+
+def _github_output_dir(s: dict) -> str:
+    return github_runner.default_output_dir(s["out"], s["org"])
+
+
+def _github_run(s: dict, output_dir, selected_keys, on_event):
+    return github_runner.run_audit(
+        org=s["org"],
+        token=s["token"],
+        output_dir=output_dir,
+        branch=s["branch"],
+        selected_keys=selected_keys,
+        on_event=on_event,
+    )
+
+
+def _gitlab_output_dir(s: dict) -> str:
+    return gitlab_runner.default_output_dir(s["out"], s["group"])
+
+
+def _gitlab_run(s: dict, output_dir, selected_keys, on_event):
+    return gitlab_runner.run_audit(
+        group=s["group"],
+        token=s["token"],
+        base_url=s["base_url"],
+        output_dir=output_dir,
+        selected_keys=selected_keys,
+        on_event=on_event,
+    )
+
+
+GITHUB = Platform(
+    key="github",
+    label="GitHub",
+    id_key="org",
+    fields=[
+        Field("org", "Organization", "my-org", required=True, env="GITHUB_ORG"),
+        Field(
+            "token",
+            "Personal access token",
+            "ghp_… (read:org, repo)",
+            password=True,
+            required=True,
+            env="GITHUB_TOKEN",
+        ),
+        Field("out", "Output directory", default="./output"),
+        Field("branch", "Branch (for commit history)", default="main"),
+    ],
+    checks=github_runner.CHECKS,
+    default_selection=github_runner.DEFAULT_SELECTION,
+    output_dir=_github_output_dir,
+    run=_github_run,
+)
+
+GITLAB = Platform(
+    key="gitlab",
+    label="GitLab",
+    id_key="group",
+    fields=[
+        Field(
+            "group",
+            "Group ID or path",
+            "e.g. 1234567 or my-group",
+            required=True,
+            env="GITLAB_GROUP",
+        ),
+        Field(
+            "token",
+            "Personal access token",
+            "glpat-… (read_api)",
+            password=True,
+            required=True,
+            env="GITLAB_TOKEN",
+        ),
+        Field(
+            "base_url",
+            "API base URL (self-hosted)",
+            default="https://gitlab.com/api/v4",
+            env="GITLAB_URL",
+        ),
+        Field("out", "Output directory", default="./output"),
+    ],
+    checks=gitlab_runner.CHECKS,
+    default_selection=gitlab_runner.DEFAULT_SELECTION,
+    output_dir=_gitlab_output_dir,
+    run=_gitlab_run,
+)
+
+PLATFORMS = [GITHUB, GITLAB]
+
+
+def prefill(f: Field) -> str:
+    """Public accessor for a field's pre-filled value (env var or default)."""
+    return _prefill(f)

@@ -1,0 +1,14 @@
+# Ruff configuration for audit-tools.
+#
+# A few lint rules are disabled because they flag patterns this project uses
+# deliberately:
+#
+#   BLE001 - The audit collectors and their CLI wrappers intentionally catch
+#            broad exceptions so that one failing check never aborts a whole
+#            audit run. The error is reported and collection continues.
+#   DTZ011 - date.today() is used to build human-facing, date-stamped output
+#            folder names, where the local date is the intended value.
+#   S112   - try/except/continue is used to skip resources that are unavailable
+#            during collection (e.g. a repo without the requested branch).
+[lint]
+ignore = ["BLE001", "DTZ011", "S112"]

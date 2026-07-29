@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import sys
 from argparse import ArgumentParser, Namespace
 from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
-import sys
 
 import pandas as pd
 
