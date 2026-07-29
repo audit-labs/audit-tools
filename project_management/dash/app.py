@@ -3,9 +3,9 @@ Extensible dashboard for project status.
 """
 
 # Import packages
-from dash import Dash, html, dcc
 import pandas as pd
 import plotly.express as px
+from dash import Dash, dcc, html
 
 # Incorporate data
 df = pd.read_excel("project_data.xlsx")

@@ -147,7 +147,7 @@ def run_audit(
         on_event(ProgressEvent("fetch", "Repo collaborators (shared cache)"))
         try:
             repo_collabs = members.fetch_repo_collaborators(org, cfg)
-        except Exception as e:  # noqa: BLE001 - surface, keep going
+        except Exception as e:
             on_event(
                 ProgressEvent(
                     "error", "Repo collaborators (shared cache)", message=str(e)
@@ -165,7 +165,7 @@ def run_audit(
                 rows = c.fn(org, cfg, branch)
             else:
                 rows = c.fn(org, cfg)
-        except Exception as e:  # noqa: BLE001 - one bad check shouldn't kill the run
+        except Exception as e:
             on_event(ProgressEvent("error", c.label, message=str(e)))
             sections.append((c.label, 0))
             continue

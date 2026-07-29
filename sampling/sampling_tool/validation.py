@@ -69,7 +69,7 @@ def validate_and_prepare(population: pd.DataFrame, options) -> ValidationResult:
         keep=False
     )
     duplicate_rows = working.loc[nonblank_ids].loc[duplicate_mask].copy()
-    duplicate_id_count = int(len(duplicate_rows))
+    duplicate_id_count = len(duplicate_rows)
     if duplicate_id_count:
         if options.dedupe_id == "fail":
             raise AuditSamplingError(

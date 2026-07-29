@@ -1,6 +1,7 @@
 # Import packages
-import pandas as pd
 import math
+
+import pandas as pd
 
 # Load data
 df = pd.read_csv("FILENAME_GOES_HERE.csv")

@@ -136,7 +136,7 @@ def run_audit(
         on_event(ProgressEvent("fetch", "Projects (shared cache)"))
         try:
             project_cache = projects.fetch_projects(group, cfg)
-        except Exception as e:  # noqa: BLE001 - surface, keep going
+        except Exception as e:
             on_event(ProgressEvent("error", "Projects (shared cache)", message=str(e)))
             project_cache = []
 
@@ -148,7 +148,7 @@ def run_audit(
                 rows = c.fn(group, cfg, project_cache or [])
             else:
                 rows = c.fn(group, cfg)
-        except Exception as e:  # noqa: BLE001 - one bad check shouldn't kill the run
+        except Exception as e:
             on_event(ProgressEvent("error", c.label, message=str(e)))
             sections.append((c.label, 0))
             continue
