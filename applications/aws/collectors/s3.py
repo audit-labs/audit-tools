@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 
 # AWS's fixed identifier for the "all users" ACL grantee. It is an opaque URI
 # used as a group ID in ACL grants, not a network endpoint this tool connects
-# to, so the http scheme is expected. NOSONAR: not an insecure URL.
+# to, so the http scheme is expected rather than an insecure request.
 ALL_USERS = "http://acs.amazonaws.com/groups/global/AllUsers"  # NOSONAR
 
 
