@@ -4,6 +4,7 @@ xlrd
 PyYAML
 pytest
 requests
+textual
 dash
 plotly
 urllib3>=2.7.0
