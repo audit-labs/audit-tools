@@ -7,7 +7,10 @@ bucket policy public, and whether the ACL grants access to AllUsers.
 
 from botocore.exceptions import ClientError
 
-ALL_USERS = "http://acs.amazonaws.com/groups/global/AllUsers"
+# AWS's fixed identifier for the "all users" ACL grantee. It is an opaque URI
+# used as a group ID in ACL grants, not a network endpoint this tool connects
+# to, so the http scheme is expected. NOSONAR: not an insecure URL.
+ALL_USERS = "http://acs.amazonaws.com/groups/global/AllUsers"  # NOSONAR
 
 
 def s3_public_access(cfg):

@@ -16,38 +16,37 @@ def iam_users(cfg):
     iam = cfg["session"].client("iam")
     now = datetime.now(timezone.utc)
     rows = []
-
     for page in iam.get_paginator("list_users").paginate():
-        for u in page["Users"]:
-            name = u["UserName"]
-            mfa = iam.list_mfa_devices(UserName=name).get("MFADevices", [])
-            keys = iam.list_access_keys(UserName=name).get("AccessKeyMetadata", [])
-            key_ages = [(now - k["CreateDate"]).days for k in keys]
-
-            try:
-                iam.get_login_profile(UserName=name)
-                console = True
-            except ClientError as e:
-                if e.response["Error"]["Code"] == "NoSuchEntity":
-                    console = False
-                else:
-                    raise
-
-            last_used = u.get("PasswordLastUsed")
-            rows.append(
-                {
-                    "user": name,
-                    "mfa_enabled": bool(mfa),
-                    "access_keys": len(keys),
-                    "oldest_key_age_days": max(key_ages) if key_ages else "",
-                    "console_password": console,
-                    "password_last_used": last_used.isoformat() if last_used else "",
-                    "created": u["CreateDate"].isoformat()
-                    if u.get("CreateDate")
-                    else "",
-                }
-            )
+        rows.extend(_user_row(iam, u, now) for u in page["Users"])
     return rows
+
+
+def _user_row(iam, user, now):
+    name = user["UserName"]
+    mfa = iam.list_mfa_devices(UserName=name).get("MFADevices", [])
+    keys = iam.list_access_keys(UserName=name).get("AccessKeyMetadata", [])
+    key_ages = [(now - k["CreateDate"]).days for k in keys]
+    last_used = user.get("PasswordLastUsed")
+    created = user.get("CreateDate")
+    return {
+        "user": name,
+        "mfa_enabled": bool(mfa),
+        "access_keys": len(keys),
+        "oldest_key_age_days": max(key_ages) if key_ages else "",
+        "console_password": _has_console_password(iam, name),
+        "password_last_used": last_used.isoformat() if last_used else "",
+        "created": created.isoformat() if created else "",
+    }
+
+
+def _has_console_password(iam, name):
+    try:
+        iam.get_login_profile(UserName=name)
+        return True
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "NoSuchEntity":
+            return False
+        raise
 
 
 def password_policy(cfg):
