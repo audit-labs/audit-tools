@@ -17,7 +17,7 @@ connection details, choose which checks to run, and watch live progress.
 
 | Directory            | Description                                                                  |
 |----------------------+------------------------------------------------------------------------------|
-| =applications/aws/=    | AWS IAM users, password policy, and S3 bucket analysis                       |
+| =applications/aws/=    | AWS IAM users, account/root security, password policy, S3 public access, open security groups, CloudTrail, Config, SSO |
 | =applications/github/= | GitHub admin enumeration, org security settings, webhooks, deploy keys, secret-scanning/Dependabot alerts, audit log, branch protections, commits |
 | =applications/gitlab/= | GitLab group/project members, branch protections, approvals, pipelines, audit events |
 | =databases/mongo/=     | MongoDB admin enumeration                                                    |

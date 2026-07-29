@@ -21,7 +21,14 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-from applications.aws.collectors import api, iam, s3, sso
+from applications.aws.collectors import (
+    api,
+    iam,
+    monitoring,
+    s3,
+    security_groups,
+    sso,
+)
 from applications.aws.reporters import csv_reporter
 
 # --- Check registry ---------------------------------------------------------
@@ -35,10 +42,31 @@ CHECKS: list[Check] = [
         "password_policy.csv",
     ),
     Check(
+        "account_security",
+        "Account security (root MFA)",
+        iam.account_security,
+        "account_security.csv",
+    ),
+    Check(
         "s3_public_access",
         "S3 public access",
         s3.s3_public_access,
         "s3_public_access.csv",
+    ),
+    Check(
+        "security_groups",
+        "Open security groups",
+        security_groups.security_groups,
+        "open_security_groups.csv",
+        note="scans all regions",
+    ),
+    Check("cloudtrail", "CloudTrail", monitoring.cloudtrail, "cloudtrail.csv"),
+    Check(
+        "config_recorders",
+        "AWS Config recorders",
+        monitoring.config_recorders,
+        "config_recorders.csv",
+        note="scans all regions",
     ),
     Check(
         "sso_assignments",

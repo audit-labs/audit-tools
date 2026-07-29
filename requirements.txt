@@ -5,6 +5,7 @@ PyYAML
 pytest
 requests
 boto3
+botocore[crt]
 textual
 dash
 plotly
