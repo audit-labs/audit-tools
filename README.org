@@ -13,7 +13,7 @@ specific audit environments.
 |----------------------+------------------------------------------------------------------------------|
 | =applications/aws/=    | AWS IAM users, password policy, and S3 bucket analysis                       |
 | =applications/github/= | GitHub admin enumeration, audit log, branch protections, and commit analysis |
-| =applications/gitlab/= | GitLab user provisioning, branch protections, approvals, pipelines, and more |
+| =applications/gitlab/= | GitLab group/project members, branch protections, approvals, pipelines, audit events |
 | =databases/mongo/=     | MongoDB admin enumeration                                                    |
 | =databases/mysql/=     | MySQL admin and password queries                                             |
 | =databases/oracle/=    | Oracle admin queries                                                         |
@@ -22,6 +22,7 @@ specific audit environments.
 | =os/linux/=            | Linux OS reporting, password file analysis, and SSH root login checks        |
 | =project_management/=  | Audit project tracking dashboards (Alteryx, Dash, Power BI)                  |
 | =sampling/=            | Random and stratified sampling tools                                         |
+| =tui/=                 | Interactive terminal UI that walks you through running an audit              |
 
 ** Getting Started
 
@@ -56,6 +57,16 @@ python sampling/sample.py
 
 Output will be shown in the terminal or saved to a file, depending on the
 script.
+
+*Interactive TUI*
+
+To pick a platform and be walked through an audit interactively:
+
+#+begin_src bash
+python audit_tui.py
+#+end_src
+
+See =tui/README.md= for details. GitHub and GitLab are supported.
 
 ** Contributing
 
