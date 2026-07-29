@@ -31,7 +31,7 @@ import sys
 from datetime import date
 
 import config
-from collectors import iam, s3, sso
+from collectors import iam, monitoring, s3, security_groups, sso
 from reporters import csv_reporter
 
 
@@ -86,7 +86,15 @@ def run():
 
     collect("IAM users", iam.iam_users, "iam_users.csv")
     collect("Password policy", iam.password_policy, "password_policy.csv")
+    collect("Account security", iam.account_security, "account_security.csv")
     collect("S3 public access", s3.s3_public_access, "s3_public_access.csv")
+    collect(
+        "Open security groups",
+        security_groups.security_groups,
+        "open_security_groups.csv",
+    )
+    collect("CloudTrail", monitoring.cloudtrail, "cloudtrail.csv")
+    collect("AWS Config recorders", monitoring.config_recorders, "config_recorders.csv")
     collect("SSO assignments", sso.sso_assignments, "sso_assignments.csv")
 
     print()
