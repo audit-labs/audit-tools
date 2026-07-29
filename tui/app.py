@@ -211,8 +211,12 @@ class RunScreen(Screen):
         self.query_one("#run-target", Static).update(
             f"Auditing [b]{target}[/]  ·  {len(keys)} checks  ·  → {self.output_dir}"
         )
-        self.query_one("#progress", ProgressBar).update(total=len(keys), progress=0)
+        self._progress.update(total=len(keys), progress=0)
         self.run_audit()
+
+    @property
+    def _progress(self) -> ProgressBar:
+        return self.query_one("#progress", ProgressBar)
 
     @work(thread=True)
     def run_audit(self) -> None:
@@ -241,10 +245,10 @@ class RunScreen(Screen):
             self._log(f"[cyan]▶[/] {ev.label}…")
         elif ev.kind == "done":
             self._log(f"[green]✓[/] {ev.label} — [b]{ev.count}[/] rows")
-            self.query_one("#progress", ProgressBar).advance(1)
+            self._progress.advance(1)
         elif ev.kind == "error":
             self._log(f"[red]✗[/] {ev.label} — {ev.message}")
-            self.query_one("#progress", ProgressBar).advance(1)
+            self._progress.advance(1)
         elif ev.kind == "summary":
             self._log("")
             self._log(f"[bold green]Done.[/] Package written to {ev.label}")
