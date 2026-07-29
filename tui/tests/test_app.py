@@ -125,3 +125,43 @@ def test_gitlab_navigation(monkeypatch):
             assert app.screen.query_one("#menu", Button).disabled is False
 
     _run(scenario())
+
+
+def test_aws_navigation(monkeypatch):
+    for var in ("AWS_PROFILE", "AWS_DEFAULT_REGION", "AWS_AUDIT_ACCOUNT"):
+        monkeypatch.delenv(var, raising=False)
+
+    def fake_run_audit(
+        *, profile, region, account, output_dir, selected_keys, on_event
+    ):
+        on_event(gh.ProgressEvent("done", "IAM users", count=5))
+        on_event(gh.ProgressEvent("summary", output_dir, count=5))
+        return [("IAM users", 5)]
+
+    monkeypatch.setattr("tui.aws_runner.run_audit", fake_run_audit)
+
+    async def scenario():
+        app = AuditApp()
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            await pilot.click("#aws")
+            await pilot.pause()
+            assert isinstance(app.screen, ConfigScreen)
+
+            # AWS has no required fields — continue with defaults (default chain).
+            await pilot.click("#continue")
+            await pilot.pause()
+            assert isinstance(app.screen, ChecksScreen)
+            assert app.settings["profile"] == ""
+
+            await pilot.click("#run")
+            await pilot.pause()
+            assert isinstance(app.screen, RunScreen)
+            # Empty profile renders as "default" in the folder name.
+            assert "aws_audit_default" in app.screen.output_dir
+
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            assert app.screen.query_one("#menu", Button).disabled is False
+
+    _run(scenario())
