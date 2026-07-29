@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import hashlib
+from pathlib import Path
 
 import pandas as pd
-
 
 SUPPORTED_EXCEL_SUFFIXES = {".xlsx", ".xls", ".xlsm"}
 

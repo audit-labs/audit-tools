@@ -5,9 +5,9 @@ Requires GitHub Enterprise Cloud. Skips gracefully with a warning if not
 available.
 """
 
-from datetime import date, datetime, timezone, timedelta
 import json
 import sys
+from datetime import date, datetime, timedelta, timezone
 
 import requests
 

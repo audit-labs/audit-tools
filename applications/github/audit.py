@@ -34,7 +34,7 @@ import sys
 from datetime import date
 
 import config
-from collectors import members, branch_protections, commits, audit_log
+from collectors import audit_log, branch_protections, commits, members
 from reporters import csv_reporter
 
 

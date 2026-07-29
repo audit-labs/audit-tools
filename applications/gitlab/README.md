@@ -1,160 +1,58 @@
-# `approvals.py`
+> **NOTE**: The token used across all collectors needs at least the `read_api`
+> scope. Some checks need more:
+> - **Approval rules** and **audit events** require a GitLab Premium or Ultimate
+>   subscription.
+> - **Password policy** reads instance application settings, which require an
+>   admin token on a self-hosted instance (not available on GitLab.com).
+>
+> Checks that are unavailable are skipped with a warning; the rest still run.
 
-\\This script requires an active Premium or Ultimate subscription.\*\\
+---
 
-``` bash
-python ./approvals.py
+# `audit.py` — Unified GitLab Audit Tool
+
+Runs all collectors against a GitLab group (including its subgroups) and writes
+a timestamped audit package to disk.
+
+## Setup
+
+```bash
+export GITLAB_TOKEN=your_token
+export GITLAB_GROUP=your_group_id_or_path
+# Self-hosted only:
+export GITLAB_URL=https://gitlab.example.com/api/v4
 ```
 
-``` text
-Rule: All Members
-  Approvals Required: 1
-  Rule type: any_approver
-Rule: Default
-  Approvals Required: 1
-  Rule type: regular
-  Protected Branch: master
-  Eligible Approver: Christian Cleberg
+## Usage
+
+```bash
+# Basic run — uses GITLAB_TOKEN and GITLAB_GROUP from environment
+python audit.py
+
+# Override group, set output directory
+python audit.py --group my-group --out ./output
+
+# Point at a self-hosted instance
+python audit.py --url https://gitlab.example.com/api/v4
 ```
 
-# `branch_protections.py`
+The group may be a numeric ID (`1234567`) or a URL path (`my-group/sub-group`).
 
-``` bash
-python ./branch_protections.py
-```
+## Output
 
-``` json
-[
-    {
-        "id": 148448212,
-        "name": "main",
-        "push_access_levels": [
-            {
-                "id": 185900194,
-                "access_level": 40,
-                "access_level_description": "Maintainers",
-                "deploy_key_id": null,
-                "user_id": null,
-                "group_id": null
-            }
-        ],
-        "merge_access_levels": [
-            {
-                "id": 156461000,
-                "access_level": 40,
-                "access_level_description": "Maintainers",
-                "user_id": null,
-                "group_id": null
-            }
-        ],
-        "allow_force_push": false,
-        "unprotect_access_levels": [],
-        "code_owner_approval_required": false,
-        "inherited": false
-    }
-]
-```
+Creates a directory: `<out>/gitlab_audit_<group>_<YYYY-MM-DD>/`
 
-# `passwords.py`
+| File | Contents |
+|---|---|
+| `group_members.csv` | Group members with access level and role |
+| `projects.csv` | All projects in the group and subgroups |
+| `project_members.csv` | Members and access levels for every project |
+| `branch_protections.csv` | Protected-branch settings across all projects |
+| `pipelines.csv` | CI/CD pipeline history across all projects |
+| `approval_rules.csv` | Merge-request approval rules (Premium/Ultimate) |
+| `audit_events.csv` | Group membership audit events (Premium/Ultimate) |
+| `password_policy.csv` | Instance password policy (self-hosted, admin token) |
+| `summary.txt` | Row counts per section |
 
-**This script does not apply to GitLab.com. This is for self-hosted
-instances only.**
-
-``` bash
-python ./passwords.py
-```
-
-``` text
-# TODO: Need access to a self-hosted version of GitLab to test this out.
-```
-
-# `pipelines.py`
-
-``` bash
-python ./pipelines.py
-```
-
-``` text
-Pipeline ID: 1754222228
-  Status: failed
-  Ref: master
-  Created At: 2025-04-06T03:39:15.065Z
-  Duration: N/A seconds
-  Configuration: N/A
-Pipeline ID: 1754221831
-  Status: failed
-  Ref: pr-1
-  Created At: 2025-04-06T03:37:42.333Z
-  Duration: N/A seconds
-  Configuration: N/A
-Pipeline ID: 1754220271
-  Status: failed
-  Ref: pr-1
-  Created At: 2025-04-06T03:33:38.606Z
-  Duration: N/A seconds
-  Configuration: N/A
-Pipeline ID: 1754214637
-  Status: failed
-  Ref: master
-  Created At: 2025-04-06T03:21:39.902Z
-  Duration: N/A seconds
-  Configuration: N/A
-```
-
-# `provisioning.py`
-
-\\This script requires an active Premium or Ultimate subscription.\*\\
-
-``` bash
-python ./provisioning.py
-```
-
-``` text
-Group: 105300140
-    2025-04-08T03:33:17.055Z : Action: member_created, Member: 128029250, Author: 24608590
-```
-
-# `repositories.py`
-
-``` shell
-python ./repositories.py
-```
-
-``` text
-# User ID Example
-Projects under ID: ccleberg:
-- audit-tools (ID: 68757698)
-- cleberg.net (ID: 68701468)
-
-# Group ID Example
-Projects under ID: phryq:
-- Yoshi Cli (ID: 68757750)
-- pages-demo (ID: 68757186)
-```
-
-# `users.py`
-
-``` bash
-python ./users.py
-```
-
-``` text
-Access Level Roles:
-    0  : No access
-    5  : Minimal access
-    10 : Guest
-    15 : Planner
-    20 : Reporter
-    30 : Developer
-    40 : Maintainer
-    50 : Owner
-    60 : Admin
-
-
-Group 97083755 Members:
-Username: ccleberg, Access Level: 50
-
-Project 68701468 Members:
-Username: ccleberg, Access Level: 50
-Username: project_68701468_bot_2c7ee010a479c0e48cdb4c7c5cfae886, Access Level: 40
-```
+The per-project checks reuse a single enumeration of the group's projects, so
+the group is listed only once per run.
