@@ -207,7 +207,7 @@ class RunScreen(Screen):
         keys = self.app.selected_keys
         self.sub_title = f"{platform.label} · running"
         self.output_dir = platform.output_dir(settings)
-        target = settings[platform.id_key]
+        target = platform.subject(settings)
         self.query_one("#run-target", Static).update(
             f"Auditing [b]{target}[/]  ·  {len(keys)} checks  ·  → {self.output_dir}"
         )

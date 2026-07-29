@@ -10,7 +10,7 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from tui import github_runner, gitlab_runner
+from tui import aws_runner, github_runner, gitlab_runner
 from tui.common import Check
 
 
@@ -31,7 +31,9 @@ class Field:
 class Platform:
     key: str
     label: str
-    id_key: str  # which field is the audit subject (org / group)
+    subject: Callable[
+        [dict], str
+    ]  # (settings) -> audit subject shown on the run screen
     fields: list[Field]
     checks: list[Check]
     default_selection: list[str]
@@ -39,6 +41,10 @@ class Platform:
     run: Callable[..., object]  # (settings, output_dir, selected_keys, on_event)
     enabled: bool = True
     note: str = field(default="")
+
+
+# Shared connection fields reused across platforms.
+_OUT_FIELD = Field("out", "Output directory", default="./output")
 
 
 def _prefill(f: Field) -> str:
@@ -79,10 +85,25 @@ def _gitlab_run(s: dict, output_dir, selected_keys, on_event):
     )
 
 
+def _aws_output_dir(s: dict) -> str:
+    return aws_runner.default_output_dir(s["out"], s["profile"])
+
+
+def _aws_run(s: dict, output_dir, selected_keys, on_event):
+    return aws_runner.run_audit(
+        profile=s["profile"],
+        region=s["region"],
+        account=s["account"],
+        output_dir=output_dir,
+        selected_keys=selected_keys,
+        on_event=on_event,
+    )
+
+
 GITHUB = Platform(
     key="github",
     label="GitHub",
-    id_key="org",
+    subject=lambda s: s["org"],
     fields=[
         Field("org", "Organization", "my-org", required=True, env="GITHUB_ORG"),
         Field(
@@ -93,7 +114,7 @@ GITHUB = Platform(
             required=True,
             env="GITHUB_TOKEN",
         ),
-        Field("out", "Output directory", default="./output"),
+        _OUT_FIELD,
         Field("branch", "Branch (for commit history)", default="main"),
     ],
     checks=github_runner.CHECKS,
@@ -105,7 +126,7 @@ GITHUB = Platform(
 GITLAB = Platform(
     key="gitlab",
     label="GitLab",
-    id_key="group",
+    subject=lambda s: s["group"],
     fields=[
         Field(
             "group",
@@ -128,7 +149,7 @@ GITLAB = Platform(
             default="https://gitlab.com/api/v4",
             env="GITLAB_URL",
         ),
-        Field("out", "Output directory", default="./output"),
+        _OUT_FIELD,
     ],
     checks=gitlab_runner.CHECKS,
     default_selection=gitlab_runner.DEFAULT_SELECTION,
@@ -136,7 +157,33 @@ GITLAB = Platform(
     run=_gitlab_run,
 )
 
-PLATFORMS = [GITHUB, GITLAB]
+AWS = Platform(
+    key="aws",
+    label="AWS",
+    subject=lambda s: s["profile"] or "default",
+    fields=[
+        Field(
+            "profile",
+            "AWS profile",
+            "default chain, or a named / SSO profile",
+            env="AWS_PROFILE",
+        ),
+        Field("region", "Region", "e.g. us-east-1", env="AWS_DEFAULT_REGION"),
+        Field(
+            "account",
+            "Account name (SSO check only)",
+            "optional; defaults to current account",
+            env="AWS_AUDIT_ACCOUNT",
+        ),
+        _OUT_FIELD,
+    ],
+    checks=aws_runner.CHECKS,
+    default_selection=aws_runner.DEFAULT_SELECTION,
+    output_dir=_aws_output_dir,
+    run=_aws_run,
+)
+
+PLATFORMS = [GITHUB, GITLAB, AWS]
 
 
 def prefill(f: Field) -> str:

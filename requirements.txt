@@ -4,6 +4,7 @@ xlrd
 PyYAML
 pytest
 requests
+boto3
 textual
 dash
 plotly
