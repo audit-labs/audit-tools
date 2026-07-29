@@ -8,6 +8,10 @@ GitHub, GitLab, and AWS are supported. Adding a platform is a matter of writing
 a runner and a `Platform` descriptor in `tui/platforms.py` — the screens are
 platform-agnostic.
 
+| Pick a platform | Choose checks | Watch it run |
+|---|---|---|
+| ![Platform menu](../docs/screenshots/menu.png) | ![Check selection](../docs/screenshots/checks.png) | ![Live run](../docs/screenshots/run.png) |
+
 ## Run it
 
 ```bash
