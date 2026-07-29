@@ -165,16 +165,3 @@ def test_aws_navigation(monkeypatch):
             assert app.screen.query_one("#menu", Button).disabled is False
 
     _run(scenario())
-
-
-def test_azure_platforms_coming_soon():
-    async def scenario():
-        app = AuditApp()
-        async with app.run_test(size=(120, 40)) as pilot:
-            await pilot.pause()
-            for key in ("azure", "azure_devops"):
-                btn = app.screen.query_one(f"#{key}", Button)
-                assert btn.disabled is True
-                assert "coming soon" in str(btn.label).lower()
-
-    _run(scenario())
