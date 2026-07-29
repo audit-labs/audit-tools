@@ -4,9 +4,9 @@ A terminal UI that walks you through running an audit. It presents a platform
 menu, collects connection details and check selection, then runs the existing
 collectors with live progress.
 
-GitHub, GitLab, and AWS are supported. Adding a platform is a matter of writing
-a runner and a `Platform` descriptor in `tui/platforms.py` — the screens are
-platform-agnostic.
+GitHub, GitLab, and AWS are supported. Azure and Azure DevOps are stubbed in the
+menu as *coming soon*. Adding a platform is a matter of writing a runner and a
+`Platform` descriptor in `tui/platforms.py` — the screens are platform-agnostic.
 
 | Pick a platform | Choose checks | Watch it run |
 |---|---|---|

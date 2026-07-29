@@ -31,14 +31,15 @@ class Field:
 class Platform:
     key: str
     label: str
-    subject: Callable[
-        [dict], str
-    ]  # (settings) -> audit subject shown on the run screen
-    fields: list[Field]
-    checks: list[Check]
-    default_selection: list[str]
-    output_dir: Callable[[dict], str]  # (settings) -> path
-    run: Callable[..., object]  # (settings, output_dir, selected_keys, on_event)
+    # The fields below drive the audit flow. A disabled ("coming soon")
+    # placeholder platform needs only key/label/enabled, so they default to
+    # empty and are never used while enabled is False.
+    subject: Callable[[dict], str] | None = None  # (settings) -> run-screen subject
+    fields: list[Field] = field(default_factory=list)
+    checks: list[Check] = field(default_factory=list)
+    default_selection: list[str] = field(default_factory=list)
+    output_dir: Callable[[dict], str] | None = None  # (settings) -> path
+    run: Callable[..., object] | None = None  # (settings, out, keys, on_event)
     enabled: bool = True
     note: str = field(default="")
 
@@ -183,7 +184,13 @@ AWS = Platform(
     run=_aws_run,
 )
 
-PLATFORMS = [GITHUB, GITLAB, AWS]
+# Coming soon — placeholders shown as disabled entries in the menu. Azure is the
+# cloud counterpart to AWS; Azure DevOps is the source-platform counterpart to
+# GitHub/GitLab.
+AZURE = Platform(key="azure", label="Azure", enabled=False)
+AZURE_DEVOPS = Platform(key="azure_devops", label="Azure DevOps", enabled=False)
+
+PLATFORMS = [GITHUB, GITLAB, AWS, AZURE, AZURE_DEVOPS]
 
 
 def prefill(f: Field) -> str:
