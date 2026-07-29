@@ -1,6 +1,9 @@
 > **NOTE**: The PAT used across all scripts needs the following minimum permissions:
 > - Repository: Actions (read), Contents (read), Metadata (read), Workflows (read)
-> - Organization: Administration (read), Members (read)
+> - Organization: Administration (read), Members (read), Webhooks (read)
+> - Secret scanning and Dependabot alerts require GitHub Advanced Security and
+>   the corresponding read permissions; they are skipped with a warning if
+>   unavailable.
 > - Audit log collection also requires GitHub Enterprise Cloud. Classic PATs need
 >   `read:audit_log`; fine-grained tokens need Organization Administration (read).
 
@@ -46,6 +49,11 @@ Creates a directory: `<out>/github_audit_<org>_<YYYY-MM-DD>/`
 | `permission_matrix.csv` | Full user/repo/permission cross-reference |
 | `branch_protections.csv` | Branch protection settings across all repos |
 | `commits.csv` | Commit history across all repos for the target branch |
+| `org_security.csv` | Org security settings (2FA requirement, default permission, repo creation, secret scanning defaults) |
+| `webhooks.csv` | Org and per-repo webhooks, flagging plain-HTTP delivery and disabled SSL verification |
+| `deploy_keys.csv` | Deploy keys across all repos (read-only vs read-write, last used) |
+| `secret_scanning.csv` | Open secret-scanning alerts (Advanced Security) |
+| `dependabot_alerts.csv` | Open Dependabot alerts with severity (Advanced Security) |
 | `audit_log.csv` | Branch protection and repository ruleset audit-log changes from the last 180 days (Enterprise Cloud only) |
 | `summary.txt` | Row counts per section |
 
