@@ -43,6 +43,10 @@ class Platform:
     note: str = field(default="")
 
 
+# Shared connection fields reused across platforms.
+_OUT_FIELD = Field("out", "Output directory", default="./output")
+
+
 def _prefill(f: Field) -> str:
     if f.env:
         value = os.environ.get(f.env, "").strip()
@@ -110,7 +114,7 @@ GITHUB = Platform(
             required=True,
             env="GITHUB_TOKEN",
         ),
-        Field("out", "Output directory", default="./output"),
+        _OUT_FIELD,
         Field("branch", "Branch (for commit history)", default="main"),
     ],
     checks=github_runner.CHECKS,
@@ -145,7 +149,7 @@ GITLAB = Platform(
             default="https://gitlab.com/api/v4",
             env="GITLAB_URL",
         ),
-        Field("out", "Output directory", default="./output"),
+        _OUT_FIELD,
     ],
     checks=gitlab_runner.CHECKS,
     default_selection=gitlab_runner.DEFAULT_SELECTION,
@@ -171,7 +175,7 @@ AWS = Platform(
             "optional; defaults to current account",
             env="AWS_AUDIT_ACCOUNT",
         ),
-        Field("out", "Output directory", default="./output"),
+        _OUT_FIELD,
     ],
     checks=aws_runner.CHECKS,
     default_selection=aws_runner.DEFAULT_SELECTION,
