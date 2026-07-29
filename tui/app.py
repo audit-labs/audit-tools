@@ -226,7 +226,7 @@ class RunScreen(Screen):
                 keys,
                 lambda ev: self.app.call_from_thread(self._handle_event, ev),
             )
-        except Exception as e:  # noqa: BLE001 - report unexpected failures in the UI
+        except Exception as e:
             self.app.call_from_thread(self._log, f"[red]Run failed:[/] {e}")
         finally:
             self.app.call_from_thread(self._finish)
