@@ -44,7 +44,7 @@ Creates a directory: `<out>/github_audit_<org>_<YYYY-MM-DD>/`
 | `pending_invitations.csv` | Invitations not yet accepted, with age in days |
 | `team_permissions.csv` | Teams, their repos, permissions, and members |
 | `permission_matrix.csv` | Full user/repo/permission cross-reference |
-| `branch_protections.csv` | Branch protection settings across all repos |
+| `branch_protections.csv` | Per-branch protection across all repos, from classic branch protection **and** rulesets (`protection_source` records which) |
 | `commits.csv` | Commit history across all repos for the target branch |
 | `audit_log.csv` | Branch protection and repository ruleset audit-log changes from the last 180 days (Enterprise Cloud only) |
 | `summary.txt` | Row counts per section |
