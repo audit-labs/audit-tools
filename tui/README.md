@@ -4,8 +4,8 @@ A terminal UI that walks you through running an audit. It presents a platform
 menu, collects connection details and check selection, then runs the existing
 collectors with live progress.
 
-GitHub and GitLab are supported. Adding a platform is a matter of writing a
-runner and a `Platform` descriptor in `tui/platforms.py` — the screens are
+GitHub, GitLab, and AWS are supported. Adding a platform is a matter of writing
+a runner and a `Platform` descriptor in `tui/platforms.py` — the screens are
 platform-agnostic.
 
 ## Run it
@@ -26,7 +26,15 @@ export GITHUB_TOKEN=ghp_...     # needs read:org and repo scopes
 export GITLAB_GROUP=my-group
 export GITLAB_TOKEN=glpat-...   # needs read_api scope
 export GITLAB_URL=https://gitlab.example.com/api/v4   # self-hosted only
+
+# AWS (credentials come from the standard AWS chain, not a form field)
+export AWS_PROFILE=my-profile
+export AWS_DEFAULT_REGION=us-east-1
+export AWS_AUDIT_ACCOUNT=my-account   # optional; only for the SSO check
 ```
+
+AWS never asks for an access key in the UI — it uses your configured profile /
+credential chain (env vars, `~/.aws`, SSO). Read-only permissions are enough.
 
 ## Walkthrough
 
@@ -41,10 +49,11 @@ export GITLAB_URL=https://gitlab.example.com/api/v4   # self-hosted only
 
 ## Output
 
-The TUI writes the same package the platform's `audit.py` produces:
-`<output>/github_audit_<org>_<date>/` or `<output>/gitlab_audit_<group>_<date>/`,
-one CSV per check plus a `summary.txt`. It reuses each platform's collectors and
-CSV reporter unchanged — the TUI is only an interactive driver around them.
+The TUI writes the same package the platform's `audit.py` produces —
+`github_audit_<org>_<date>/`, `gitlab_audit_<group>_<date>/`, or
+`aws_audit_<profile>_<date>/` under the output directory — one CSV per check
+plus a `summary.txt`. It reuses each platform's collectors and CSV reporter
+unchanged; the TUI is only an interactive driver around them.
 
 ## Keys
 
