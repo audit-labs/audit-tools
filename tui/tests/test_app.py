@@ -167,14 +167,53 @@ def test_aws_navigation(monkeypatch):
     _run(scenario())
 
 
-def test_azure_platforms_coming_soon():
+def test_azure_is_coming_soon_and_ado_is_enabled():
     async def scenario():
         app = AuditApp()
         async with app.run_test(size=(120, 40)) as pilot:
             await pilot.pause()
-            for key in ("azure", "azure_devops"):
-                btn = app.screen.query_one(f"#{key}", Button)
-                assert btn.disabled is True
-                assert "coming soon" in str(btn.label).lower()
+            azure = app.screen.query_one("#azure", Button)
+            assert azure.disabled is True
+            assert "coming soon" in str(azure.label).lower()
+            assert app.screen.query_one("#azure_devops", Button).disabled is False
+
+    _run(scenario())
+
+
+def test_azure_devops_navigation(monkeypatch):
+    monkeypatch.delenv("AZDO_ORG", raising=False)
+    monkeypatch.delenv("AZDO_PAT", raising=False)
+
+    def fake_run_audit(*, org, pat, base_url, output_dir, selected_keys, on_event):
+        on_event(gh.ProgressEvent("done", "Projects", count=4))
+        on_event(gh.ProgressEvent("summary", output_dir, count=4))
+        return [("Projects", 4)]
+
+    monkeypatch.setattr("tui.azure_devops_runner.run_audit", fake_run_audit)
+
+    async def scenario():
+        app = AuditApp()
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            await pilot.click("#azure_devops")
+            await pilot.pause()
+            assert isinstance(app.screen, ConfigScreen)
+
+            app.screen.query_one("#org", Input).value = "acme"
+            app.screen.query_one("#pat", Input).value = "pat123"
+            await pilot.click("#continue")
+            await pilot.pause()
+            assert isinstance(app.screen, ChecksScreen)
+            assert app.settings["org"] == "acme"
+            assert app.settings["base_url"] == "https://dev.azure.com"
+
+            await pilot.click("#run")
+            await pilot.pause()
+            assert isinstance(app.screen, RunScreen)
+            assert "azure_devops_audit_acme" in app.screen.output_dir
+
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            assert app.screen.query_one("#menu", Button).disabled is False
 
     _run(scenario())

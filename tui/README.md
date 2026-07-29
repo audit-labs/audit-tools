@@ -4,9 +4,10 @@ A terminal UI that walks you through running an audit. It presents a platform
 menu, collects connection details and check selection, then runs the existing
 collectors with live progress.
 
-GitHub, GitLab, and AWS are supported. Azure and Azure DevOps are stubbed in the
-menu as *coming soon*. Adding a platform is a matter of writing a runner and a
-`Platform` descriptor in `tui/platforms.py` — the screens are platform-agnostic.
+GitHub, GitLab, AWS, and Azure DevOps are supported. Azure (cloud) is stubbed in
+the menu as *coming soon*. Adding a platform is a matter of writing a runner and
+a `Platform` descriptor in `tui/platforms.py` — the screens are
+platform-agnostic.
 
 | Pick a platform | Choose checks | Watch it run |
 |---|---|---|
@@ -35,6 +36,11 @@ export GITLAB_URL=https://gitlab.example.com/api/v4   # self-hosted only
 export AWS_PROFILE=my-profile
 export AWS_DEFAULT_REGION=us-east-1
 export AWS_AUDIT_ACCOUNT=my-account   # optional; only for the SSO check
+
+# Azure DevOps
+export AZDO_ORG=my-org
+export AZDO_PAT=your_pat              # read scopes
+export AZDO_URL=https://azuredevops.example.com/DefaultCollection  # Server only
 ```
 
 AWS never asks for an access key in the UI — it uses your configured profile /

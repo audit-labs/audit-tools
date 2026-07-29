@@ -10,7 +10,7 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from tui import aws_runner, github_runner, gitlab_runner
+from tui import aws_runner, azure_devops_runner, github_runner, gitlab_runner
 from tui.common import Check
 
 
@@ -101,6 +101,21 @@ def _aws_run(s: dict, output_dir, selected_keys, on_event):
     )
 
 
+def _azure_devops_output_dir(s: dict) -> str:
+    return azure_devops_runner.default_output_dir(s["out"], s["org"])
+
+
+def _azure_devops_run(s: dict, output_dir, selected_keys, on_event):
+    return azure_devops_runner.run_audit(
+        org=s["org"],
+        pat=s["pat"],
+        base_url=s["base_url"],
+        output_dir=output_dir,
+        selected_keys=selected_keys,
+        on_event=on_event,
+    )
+
+
 GITHUB = Platform(
     key="github",
     label="GitHub",
@@ -184,13 +199,39 @@ AWS = Platform(
     run=_aws_run,
 )
 
-# Coming soon — placeholders shown as disabled entries in the menu. Azure is the
-# cloud counterpart to AWS; Azure DevOps is the source-platform counterpart to
-# GitHub/GitLab.
-AZURE = Platform(key="azure", label="Azure", enabled=False)
-AZURE_DEVOPS = Platform(key="azure_devops", label="Azure DevOps", enabled=False)
+# Azure DevOps — source-platform counterpart to GitHub/GitLab (org + PAT).
+AZURE_DEVOPS = Platform(
+    key="azure_devops",
+    label="Azure DevOps",
+    subject=lambda s: s["org"],
+    fields=[
+        Field("org", "Organization", "my-org", required=True, env="AZDO_ORG"),
+        Field(
+            "pat",
+            "Personal access token",
+            "PAT with read scopes",
+            password=True,
+            required=True,
+            env="AZDO_PAT",
+        ),
+        Field(
+            "base_url",
+            "Base URL (Azure DevOps Server)",
+            default="https://dev.azure.com",
+            env="AZDO_URL",
+        ),
+        _OUT_FIELD,
+    ],
+    checks=azure_devops_runner.CHECKS,
+    default_selection=azure_devops_runner.DEFAULT_SELECTION,
+    output_dir=_azure_devops_output_dir,
+    run=_azure_devops_run,
+)
 
-PLATFORMS = [GITHUB, GITLAB, AWS, AZURE, AZURE_DEVOPS]
+# Coming soon — Azure (cloud) is still a disabled placeholder.
+AZURE = Platform(key="azure", label="Azure", enabled=False)
+
+PLATFORMS = [GITHUB, GITLAB, AWS, AZURE_DEVOPS, AZURE]
 
 
 def prefill(f: Field) -> str:

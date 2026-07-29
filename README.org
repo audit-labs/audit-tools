@@ -8,8 +8,8 @@ This repository includes practical examples that can be used as-is or adapted to
 specific audit environments.
 
 It also ships an interactive terminal UI (=audit_tui.py=) that walks you through
-running an audit against GitHub, GitLab, or AWS — pick a platform, enter
-connection details, choose which checks to run, and watch live progress.
+running an audit against GitHub, GitLab, AWS, or Azure DevOps — pick a platform,
+enter connection details, choose which checks to run, and watch live progress.
 
 [[./docs/screenshots/menu.png]]
 
@@ -18,6 +18,7 @@ connection details, choose which checks to run, and watch live progress.
 | Directory            | Description                                                                  |
 |----------------------+------------------------------------------------------------------------------|
 | =applications/aws/=    | AWS IAM users, password policy, and S3 bucket analysis                       |
+| =applications/azure_devops/= | Azure DevOps users, group memberships, repos, branch policies, service connections |
 | =applications/github/= | GitHub admin enumeration, audit log, branch protections, and commit analysis |
 | =applications/gitlab/= | GitLab group/project members, branch protections, approvals, pipelines, audit events |
 | =databases/mongo/=     | MongoDB admin enumeration                                                    |
