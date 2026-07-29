@@ -46,6 +46,7 @@ class Platform:
 
 # Shared connection fields reused across platforms.
 _OUT_FIELD = Field("out", "Output directory", default="./output")
+_PAT_LABEL = "Personal access token"
 
 
 def _prefill(f: Field) -> str:
@@ -124,7 +125,7 @@ GITHUB = Platform(
         Field("org", "Organization", "my-org", required=True, env="GITHUB_ORG"),
         Field(
             "token",
-            "Personal access token",
+            _PAT_LABEL,
             "ghp_… (read:org, repo)",
             password=True,
             required=True,
@@ -153,7 +154,7 @@ GITLAB = Platform(
         ),
         Field(
             "token",
-            "Personal access token",
+            _PAT_LABEL,
             "glpat-… (read_api)",
             password=True,
             required=True,
@@ -208,7 +209,7 @@ AZURE_DEVOPS = Platform(
         Field("org", "Organization", "my-org", required=True, env="AZDO_ORG"),
         Field(
             "pat",
-            "Personal access token",
+            _PAT_LABEL,
             "PAT with read scopes",
             password=True,
             required=True,

@@ -15,6 +15,7 @@ specialized hosts don't apply; those collectors are best-effort there.
 
 import base64
 import sys
+from urllib.parse import urlparse
 
 import requests
 
@@ -36,10 +37,15 @@ def build_cfg(org, pat, base_url=DEFAULT_BASE_URL):
 
 
 def _host(cfg, sub):
-    """Return the base URL for a sub-host (e.g. 'vsaex'), for cloud orgs."""
+    """Return the base URL for a sub-host (e.g. 'vsaex'), for cloud orgs.
+
+    Only the exact ``dev.azure.com`` host is rewritten; on-prem Server URLs are
+    returned unchanged.
+    """
     base = cfg["base_url"]
-    if sub and "dev.azure.com" in base:
-        return base.replace("https://dev.azure.com", f"https://{sub}.dev.azure.com")
+    parsed = urlparse(base)
+    if sub and parsed.hostname == "dev.azure.com":
+        return f"{parsed.scheme}://{sub}.dev.azure.com"
     return base
 
 

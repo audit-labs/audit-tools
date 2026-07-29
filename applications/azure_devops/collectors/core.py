@@ -14,7 +14,10 @@ def fetch_projects(cfg):
     return paginate(core_url(cfg, "_apis/projects"), cfg, {"api-version": API_VERSION})
 
 
-def project_list(cfg, projects):
+def project_list(_cfg, projects):
+    # _cfg is unused; project_list only formats the shared cache, but keeps the
+    # uniform (cfg, projects) signature the runner dispatches "projects" checks
+    # with.
     return [
         {
             "id": p["id"],
