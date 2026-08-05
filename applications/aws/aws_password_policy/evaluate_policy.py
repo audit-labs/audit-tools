@@ -8,8 +8,12 @@ a CSV audit report.
 
 Features
 * Interactive prompts – press <Enter> to mark a rule as N/A.
-* Numeric items are treated as **minimums** (actual >= expected → PASS).
+* Most numeric items are treated as **minimums** (actual >= expected → PASS).
+* Maximum password age is treated as a **maximum** (actual <= expected → PASS),
+  because a lower ceiling is the stricter/more‑secure setting.
 * Boolean items are treated as **exact matches** (actual == expected → PASS).
+* A required item that is absent from the policy is reported as FAIL rather
+  than crashing (AWS omits e.g. MaxPasswordAge when password expiry is off).
 * The CSV begins with a small metadata block (same data that the Bash script
   captured) so the audit trail is self‑contained.
 * Usage:
@@ -27,16 +31,19 @@ from typing import Any
 # Mapping of the 10 password‑policy fields we care about
 # (rule_no, json_key, friendly_name, datatype)
 # ----------------------------------------------------------------------
+# Numeric datatypes carry a direction:
+#   "int_min" – actual must be >= expected (higher is stricter)
+#   "int_max" – actual must be <= expected (lower is stricter)
 POLICY_FIELDS = [
-    (1, "MinimumPasswordLength", "Minimum password length", "int"),
+    (1, "MinimumPasswordLength", "Minimum password length", "int_min"),
     (2, "RequireSymbols", "Require symbols (!@#$…)", "bool"),
     (3, "RequireNumbers", "Require numbers (0‑9)", "bool"),
     (4, "RequireUppercaseCharacters", "Require uppercase letters (A‑Z)", "bool"),
     (5, "RequireLowercaseCharacters", "Require lowercase letters (a‑z)", "bool"),
     (6, "AllowUsersToChangePassword", "Allow users to change password", "bool"),
     (7, "ExpirePasswords", "Expire passwords (enable aging)", "bool"),
-    (8, "MaxPasswordAge", "Maximum password age (days)", "int"),
-    (9, "PasswordReusePrevention", "Prevent password reuse (last N)", "int"),
+    (8, "MaxPasswordAge", "Maximum password age (days)", "int_max"),
+    (9, "PasswordReusePrevention", "Prevent password reuse (last N)", "int_min"),
     (10, "HardExpiry", "Hard expiry (no grace period)", "bool"),
 ]
 
@@ -45,8 +52,8 @@ POLICY_FIELDS = [
 # Helper functions
 # ----------------------------------------------------------------------
 def utc_now() -> datetime:
-    """Return a timezone‑aware UTC datetime (compatible with all Python 3.x)."""
-    return datetime.datetime.now(timezone.utc)
+    """Return a timezone‑aware UTC datetime."""
+    return datetime.now(timezone.utc)
 
 
 def prompt_expected(field_type: str, description: str) -> Any | None:
@@ -62,7 +69,7 @@ def prompt_expected(field_type: str, description: str) -> Any | None:
         ).strip()
         if raw == "":
             return None  # N/A
-        if field_type == "int":
+        if field_type.startswith("int"):
             if raw.isdigit():
                 return int(raw)
             print("Please enter a whole number (or leave blank).")
@@ -79,13 +86,24 @@ def prompt_expected(field_type: str, description: str) -> Any | None:
 
 
 def evaluate(expect: Any | None, actual: Any, field_type: str) -> str:
-    """Return PASS / FAIL / N/A."""
+    """Return PASS / FAIL / N/A.
+
+    A required item (expectation set) that is absent or of the wrong type in
+    the policy is a FAIL, never a crash.
+    """
     if expect is None:
         return "N/A"
-    if field_type == "int":
-        return "PASS" if actual >= expect else "FAIL"
     if field_type == "bool":
-        return "PASS" if actual is expect else "FAIL"
+        # bool is a subclass of int, so guard against ints sneaking through.
+        return "PASS" if isinstance(actual, bool) and actual == expect else "FAIL"
+    if field_type.startswith("int"):
+        # Reject non‑numbers (e.g. a missing field rendered as a string) and
+        # booleans (a subclass of int that must not satisfy a numeric rule).
+        if isinstance(actual, bool) or not isinstance(actual, (int, float)):
+            return "FAIL"
+        if field_type == "int_max":
+            return "PASS" if actual <= expect else "FAIL"
+        return "PASS" if actual >= expect else "FAIL"
     return "FAIL"
 
 
@@ -173,6 +191,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    import datetime  # imported here to keep the top of file tidy
-
     main()

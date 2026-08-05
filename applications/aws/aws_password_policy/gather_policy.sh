@@ -60,20 +60,26 @@ fi
 #   * current working directory (useful for traceability)
 #   * AWS profile & region (if set)
 #   * AWS caller identity (ARN, account id, user id) – proves *who* ran the command
-METADATA=$(cat <<EOF
-{
-  "metadata": {
-    "report_timestamp_utc": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-    "os_user": "$(id -un)",
-    "hostname": "$(hostname)",
-    "working_directory": "$(pwd)",
-    "aws_profile": "${AWS_PROFILE:-default}",
-    "aws_region": "${AWS_DEFAULT_REGION:-unknown}",
-    "aws_caller_identity": $(aws sts get-caller-identity 2>/dev/null || echo "null")
-  }
-}
-EOF
-)
+# Build with `jq --arg` so values containing quotes/backslashes (e.g. an odd
+# hostname or working directory) can never produce malformed JSON.
+CALLER_IDENTITY=$(aws sts get-caller-identity 2>/dev/null || echo "null")
+METADATA=$(jq -n \
+    --arg ts "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+    --arg user "$(id -un)" \
+    --arg host "$(hostname)" \
+    --arg cwd "$(pwd)" \
+    --arg profile "${AWS_PROFILE:-default}" \
+    --arg region "${AWS_DEFAULT_REGION:-unknown}" \
+    --argjson caller "$CALLER_IDENTITY" \
+    '{metadata: {
+        report_timestamp_utc: $ts,
+        os_user: $user,
+        hostname: $host,
+        working_directory: $cwd,
+        aws_profile: $profile,
+        aws_region: $region,
+        aws_caller_identity: $caller
+    }}')
 
 # ---------- 3. Merge policy + metadata ----------
 # The final JSON will have two top‑level keys: "metadata" and "PasswordPolicy"
