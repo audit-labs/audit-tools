@@ -77,7 +77,14 @@ function seededRandom(seed) {
 function handleFormSubmit(event) {
     event.preventDefault(); // Prevent the default form submission behavior
     const customSeedInput = document.getElementById('customSeed').value;
-    const seed = customSeedInput ? parseInt(customSeedInput) : Math.floor(Math.random() * 1000000); // Use custom seed if provided
+    // Use the custom seed if provided; otherwise draw a strong random seed and
+    // write it back so the (reproducible) sample can always be tied to a seed.
+    const seed = customSeedInput
+        ? parseInt(customSeedInput)
+        : crypto.getRandomValues(new Uint32Array(1))[0] % 1000000;
+    if (!customSeedInput) {
+        document.getElementById('customSeed').value = seed;
+    }
     generateSamples(seed); // Call the function with the seed
 }
 
