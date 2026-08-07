@@ -1,13 +1,14 @@
-pandas
-openpyxl
-xlrd
-PyYAML
-pytest
-requests
-boto3
-botocore[crt]
-textual
-dash
-plotly
-urllib3>=2.7.0
-Werkzeug>=3.1.8
+# Dependencies are declared in pyproject.toml as optional "extras", so you only
+# install what a given procedure needs. Installing this file pulls EVERYTHING.
+#
+# Lighter, targeted installs (run from the repo root):
+#   pip install ".[analysis]"     # sampling + data analysis (pandas, Excel)
+#   pip install ".[dashboards]"   # dash + plotly dashboards
+#   pip install ".[aws]"          # AWS collectors (boto3)
+#   pip install ".[collectors]"   # GitHub / GitLab collectors (requests)
+#   pip install ".[mongo]"        # MongoDB collectors (pymongo)
+#   pip install ".[tui]"          # the terminal UI runner
+#   pip install ".[dev]"          # everything + pytest + ruff
+#
+# Full install (all optional features):
+.[all]

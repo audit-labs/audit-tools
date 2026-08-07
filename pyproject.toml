@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audit-tools"
+version = "0.1.0"
+description = "Scripts for programmatically gathering IT audit evidence from cloud, source control, databases, and operating systems."
+readme = { file = "README.org", content-type = "text/plain" }
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Christian Cleberg", email = "hello@cleberg.net" }]
+keywords = ["audit", "compliance", "evidence", "ITGC", "SOC2", "ISO27001"]
+
+# The core is deliberately empty: many collectors are shell scripts or use only
+# the standard library. Install just the extras a given procedure needs, so a
+# locked-down auditing laptop never pulls pandas/dash/plotly it will not run.
+dependencies = []
+
+[project.optional-dependencies]
+# Sampling and data analysis (CSV + Excel wrangling).
+analysis = ["pandas", "openpyxl", "xlrd", "PyYAML"]
+# Interactive dashboards for project / findings data.
+dashboards = ["dash", "plotly", "Werkzeug>=3.1.8"]
+# AWS evidence collectors.
+aws = ["boto3", "botocore[crt]", "urllib3>=2.7.0"]
+# GitHub / GitLab REST collectors.
+collectors = ["requests", "urllib3>=2.7.0"]
+# MongoDB user / access collectors.
+mongo = ["pymongo"]
+# Terminal UI that drives the collectors.
+tui = ["audit-tools[aws,collectors]", "textual"]
+# Everything, for a full local install.
+all = ["audit-tools[analysis,dashboards,aws,collectors,mongo,tui]"]
+# Development: linting and tests.
+dev = ["audit-tools[all]", "pytest", "ruff"]
+
+[project.urls]
+Homepage = "https://audit-labs.dev"
+Repository = "https://github.com/audit-labs/audit-tools"
+
+# This repo is a runnable script collection, not an importable library. Declare
+# no modules so `pip install .` provisions dependencies (via extras) without
+# trying to package the top-level scripts.
+[tool.setuptools]
+py-modules = []
