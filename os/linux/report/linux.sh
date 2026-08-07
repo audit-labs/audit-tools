@@ -6,10 +6,13 @@ TRIM_COMMENTS=false
 
 # Function to log section header
 log_section() {
+    local section_num="$1"
+    local section_title="$2"
     echo -e "\n\n" >> "$REPORT_FILE"
     echo "==========================================" >> "$REPORT_FILE"
-    echo "# SECTION $1: $2" >> "$REPORT_FILE"
+    echo "# SECTION $section_num: $section_title" >> "$REPORT_FILE"
     echo "==========================================" >> "$REPORT_FILE"
+    return 0
 }
 
 # Function to log file content
@@ -27,12 +30,16 @@ log_file_content() {
     else
         echo "File $FILE_PATH not found!" >> "$REPORT_FILE"
     fi
+    return 0
 }
 
 # Function to log command output
 log_command_output() {
-    echo "## $1" >> "$REPORT_FILE"
-    $2 >> "$REPORT_FILE" 2>&1
+    local label="$1"
+    local command="$2"
+    echo "## $label" >> "$REPORT_FILE"
+    $command >> "$REPORT_FILE" 2>&1
+    return 0
 }
 
 # Check for sudo privileges

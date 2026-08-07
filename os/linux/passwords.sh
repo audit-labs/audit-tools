@@ -4,11 +4,11 @@
 extract_password_params() {
     echo "Checking /etc/pam.d/system-auth for password parameters..."
     
-    if [ -f /etc/pam.d/system-auth ]; then
+    if [[ -f /etc/pam.d/system-auth ]]; then
         # Extract the line containing the password complexity parameters
         param_line=$(grep -E 'difok=.* minlen=.* dcredit=.* ocredit=.* ucredit=.* lcredit=.* minclass=.* maxsequence=.*' /etc/pam.d/system-auth)
         
-        if [ -n "$param_line" ]; then
+        if [[ -n "$param_line" ]]; then
             echo "Password complexity parameters found:"
             echo "$param_line"
             echo ""
@@ -44,12 +44,13 @@ extract_password_params() {
     else
         echo "/etc/pam.d/system-auth file not found."
     fi
+    return 0
 }
 
 # Function to analyze /etc/login.defs
 analyze_login_defs() {
     echo "Analyzing /etc/login.defs..."
-    if [ -f /etc/login.defs ]; then
+    if [[ -f /etc/login.defs ]]; then
         echo "Contents of /etc/login.defs:"
         cat /etc/login.defs
         echo ""
@@ -61,6 +62,7 @@ analyze_login_defs() {
     else
         echo "/etc/login.defs file not found."
     fi
+    return 0
 }
 
 # Main script execution

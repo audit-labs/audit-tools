@@ -9,7 +9,7 @@ ACCOUNT_NAME=""
 
 # --- Prerequisite check ---
 if ! command -v aws &> /dev/null || ! command -v jq &> /dev/null; then
-    echo "Error: Both AWS CLI and jq are required. Please install them and ensure they are in your PATH."
+    echo "Error: Both AWS CLI and jq are required. Please install them and ensure they are in your PATH." >&2
     exit 1
 fi
 
@@ -19,15 +19,15 @@ echo "Fetching IAM Identity Center and Account details..."
 INSTANCE_ARN=$(aws sso-admin list-instances --query "Instances[0].InstanceArn" --output text)
 IDENTITY_STORE_ID=$(aws sso-admin list-instances --query "Instances[0].IdentityStoreId" --output text)
 
-if [ -z "$INSTANCE_ARN" ] || [ -z "$IDENTITY_STORE_ID" ]; then
-    echo "Error: Could not find IAM Identity Center instance ARN or Identity Store ID."
+if [[ -z "$INSTANCE_ARN" ]] || [[ -z "$IDENTITY_STORE_ID" ]]; then
+    echo "Error: Could not find IAM Identity Center instance ARN or Identity Store ID." >&2
     exit 1
 fi
 
 ACCOUNT_ID=$(aws organizations list-accounts --query "Accounts[?Name=='$ACCOUNT_NAME' && Status=='ACTIVE'].Id" --output text)
 
-if [ -z "$ACCOUNT_ID" ]; then
-    echo "Error: Could not find an active AWS account with the name '$ACCOUNT_NAME'."
+if [[ -z "$ACCOUNT_ID" ]]; then
+    echo "Error: Could not find an active AWS account with the name '$ACCOUNT_NAME'." >&2
     exit 1
 fi
 
@@ -41,7 +41,7 @@ PROVISIONED_SETS_ARN=$(aws sso-admin list-permission-sets-provisioned-to-account
     --account-id "$ACCOUNT_ID" \
     --query "PermissionSets[]" --output text)
 
-if [ -z "$PROVISIONED_SETS_ARN" ]; then
+if [[ -z "$PROVISIONED_SETS_ARN" ]]; then
     echo "No permission sets are provisioned for account '$ACCOUNT_NAME'."
     exit 0
 fi
@@ -64,14 +64,14 @@ for PS_ARN in $PROVISIONED_SETS_ARN; do
         --permission-set-arn "$PS_ARN" \
         --query "AccountAssignments[]" --output json)
 
-    if [ "$(echo "$ACCOUNT_ASSIGNMENTS" | jq 'length')" -eq 0 ]; then
+    if [[ "$(echo "$ACCOUNT_ASSIGNMENTS" | jq 'length')" -eq 0 ]]; then
         echo "  -> Permission Set ARN $PS_ARN is provisioned but has no active assignments."
         continue
     fi
 
     # Since there are assignments, let's get the permission set's details (policies, name)
     # Using a cache to avoid redundant calls if a PS is somehow listed twice
-    if [ -z "${PERMISSION_SET_CACHE[$PS_ARN]}" ]; then
+    if [[ -z "${PERMISSION_SET_CACHE[$PS_ARN]}" ]]; then
         echo "  -> Fetching policies for Permission Set: $PS_ARN"
         PS_NAME=$(aws sso-admin describe-permission-set --instance-arn "$INSTANCE_ARN" --permission-set-arn "$PS_ARN" --query "PermissionSet.Name" --output text)
         MANAGED_POLICIES=$(aws sso-admin list-managed-policies-in-permission-set --instance-arn "$INSTANCE_ARN" --permission-set-arn "$PS_ARN" --query "AttachedManagedPolicies[].Arn" --output json)
@@ -87,16 +87,16 @@ for PS_ARN in $PROVISIONED_SETS_ARN; do
 
     # Now process each assignment found for this permission set
     for row in $(echo "${ACCOUNT_ASSIGNMENTS}" | jq -r '.[] | @base64'); do
-        _jq() { echo ${row} | base64 --decode | jq -r ${1}; }
+        _jq() { echo ${row} | base64 --decode | jq -r ${1}; return 0; }
         PRINCIPAL_TYPE=$(_jq '.PrincipalType')
         PRINCIPAL_ID=$(_jq '.PrincipalId')
 
         # Get Principal (User/Group) Name, using a cache
-        if [ -z "${PRINCIPAL_NAME_CACHE[$PRINCIPAL_ID]}" ]; then
+        if [[ -z "${PRINCIPAL_NAME_CACHE[$PRINCIPAL_ID]}" ]]; then
             PRINCIPAL_NAME=""
-            if [ "$PRINCIPAL_TYPE" == "USER" ]; then
+            if [[ "$PRINCIPAL_TYPE" == "USER" ]]; then
                 PRINCIPAL_NAME=$(aws identitystore describe-user --identity-store-id "$IDENTITY_STORE_ID" --user-id "$PRINCIPAL_ID" --query "UserName" --output text 2>/dev/null)
-            elif [ "$PRINCIPAL_TYPE" == "GROUP" ]; then
+            elif [[ "$PRINCIPAL_TYPE" == "GROUP" ]]; then
                 PRINCIPAL_NAME=$(aws identitystore describe-group --identity-store-id "$IDENTITY_STORE_ID" --group-id "$PRINCIPAL_ID" --query "DisplayName" --output text 2>/dev/null)
             fi
             PRINCIPAL_NAME_CACHE[$PRINCIPAL_ID]=${PRINCIPAL_NAME:-"ID: $PRINCIPAL_ID"}

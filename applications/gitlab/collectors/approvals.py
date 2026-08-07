@@ -12,7 +12,7 @@ import requests
 from .api import paginate
 
 
-def approval_rules(group, cfg, projects):
+def approval_rules(_group, cfg, projects):
     rows = []
     for p in projects:
         try:

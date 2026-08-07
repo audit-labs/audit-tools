@@ -23,6 +23,11 @@ from .reconciliation import build_reconciliation, build_strata_summary
 from .reporting import RunLogger, build_methodology
 from .validation import validate_and_prepare
 
+# Output filenames, defined once so writer and tracker never drift.
+_POPULATION_VALIDATED_CSV = "population_validated.csv"
+_EXCLUDED_ROWS_CSV = "excluded_rows.csv"
+_DUPLICATE_IDS_CSV = "duplicate_ids.csv"
+
 
 def build_parser() -> ArgumentParser:
     parser = ArgumentParser(description="Generate documented audit samples.")
@@ -211,7 +216,6 @@ def run(options) -> Path:
         _write_outputs(
             run_dir,
             options,
-            source,
             validated,
             excluded_rows,
             duplicate_rows,
@@ -227,8 +231,6 @@ def run(options) -> Path:
         print(f"ERROR: {exc}", file=sys.stderr)
         _write_failure_outputs(
             run_dir,
-            options,
-            source,
             filtered,
             excluded_rows,
             duplicate_rows,
@@ -307,7 +309,6 @@ def add_sample_metadata(
 def _write_outputs(
     run_dir: Path,
     options,
-    source: pd.DataFrame,
     validated: pd.DataFrame,
     excluded_rows: pd.DataFrame,
     duplicate_rows: pd.DataFrame,
@@ -315,17 +316,17 @@ def _write_outputs(
     strata_rows: list[dict[str, object]],
     output_files: list[str],
 ) -> None:
-    write_csv(validated, run_dir / "population_validated.csv")
-    _track(output_files, "population_validated.csv")
+    write_csv(validated, run_dir / _POPULATION_VALIDATED_CSV)
+    _track(output_files, _POPULATION_VALIDATED_CSV)
     if options.method in {"random", "stratified"}:
         write_csv(sample, run_dir / "sample.csv")
         _track(output_files, "sample.csv")
     if not excluded_rows.empty:
-        write_csv(excluded_rows, run_dir / "excluded_rows.csv")
-        _track(output_files, "excluded_rows.csv")
+        write_csv(excluded_rows, run_dir / _EXCLUDED_ROWS_CSV)
+        _track(output_files, _EXCLUDED_ROWS_CSV)
     if not duplicate_rows.empty:
-        write_csv(duplicate_rows, run_dir / "duplicate_ids.csv")
-        _track(output_files, "duplicate_ids.csv")
+        write_csv(duplicate_rows, run_dir / _DUPLICATE_IDS_CSV)
+        _track(output_files, _DUPLICATE_IDS_CSV)
     if options.method == "stratified":
         write_csv(build_strata_summary(strata_rows), run_dir / "strata_summary.csv")
         _track(output_files, "strata_summary.csv")
@@ -333,22 +334,20 @@ def _write_outputs(
 
 def _write_failure_outputs(
     run_dir: Path,
-    options,
-    source: pd.DataFrame,
     filtered: pd.DataFrame,
     excluded_rows: pd.DataFrame,
     duplicate_rows: pd.DataFrame,
     output_files: list[str],
 ) -> None:
     if not filtered.empty:
-        write_csv(filtered, run_dir / "population_validated.csv")
-        _track(output_files, "population_validated.csv")
+        write_csv(filtered, run_dir / _POPULATION_VALIDATED_CSV)
+        _track(output_files, _POPULATION_VALIDATED_CSV)
     if not excluded_rows.empty:
-        write_csv(excluded_rows, run_dir / "excluded_rows.csv")
-        _track(output_files, "excluded_rows.csv")
+        write_csv(excluded_rows, run_dir / _EXCLUDED_ROWS_CSV)
+        _track(output_files, _EXCLUDED_ROWS_CSV)
     if not duplicate_rows.empty:
-        write_csv(duplicate_rows, run_dir / "duplicate_ids.csv")
-        _track(output_files, "duplicate_ids.csv")
+        write_csv(duplicate_rows, run_dir / _DUPLICATE_IDS_CSV)
+        _track(output_files, _DUPLICATE_IDS_CSV)
 
 
 def _concat_nonempty(frames: list[pd.DataFrame]) -> pd.DataFrame:

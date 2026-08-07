@@ -5,6 +5,11 @@ Checks SQL Server user data for compliance with Windows policies.
 # Import packages
 import pandas as pd
 
+# Report column labels (defined once to avoid duplicated string literals).
+TYPE_CHECK = "Type Check"
+POLICY_CHECK = "Policy Check"
+EXPIRATION_CHECK = "Expiration Check"
+
 # Load the data into a pandas DataFrame
 df_input = pd.read_csv("./data.csv")
 
@@ -24,38 +29,38 @@ def apply_rules_and_report(df):
     for _, row in df.iterrows():
         result = {
             "Name": row["name"],
-            "Type Check": "",
-            "Policy Check": "",
-            "Expiration Check": "",
+            TYPE_CHECK: "",
+            POLICY_CHECK: "",
+            EXPIRATION_CHECK: "",
             "Reason": "",
         }
 
         # Check the type_desc
         if row["type_desc"] == "SQL_LOGIN":
-            result["Type Check"] = "SQL_LOGIN"
+            result[TYPE_CHECK] = "SQL_LOGIN"
         elif row["type_desc"] == "WINDOWS_LOGIN":
-            result["Type Check"] = "N/A"
+            result[TYPE_CHECK] = "N/A"
             result["Reason"] = "Refer to Windows password policy."
         else:
-            result["Type Check"] = "Manual Review"
+            result[TYPE_CHECK] = "Manual Review"
             result["Reason"] = "Reviewer to manually review."
 
         # Check if password policy is enforced
         if row["is_policy_checked"] == 1:
-            result["Policy Check"] = "PASS"
+            result[POLICY_CHECK] = "PASS"
             result["Reason"] += """Password policy is enforced. Reviewer to
             check the assigned policy."""
         else:
-            result["Policy Check"] = "FAIL"
+            result[POLICY_CHECK] = "FAIL"
             result["Reason"] += "Password policy is not enforced."
 
         # Check if password expiration is enforced
         if row["is_expiration_checked"] == 1:
-            result["Expiration Check"] = "PASS"
+            result[EXPIRATION_CHECK] = "PASS"
             result["Reason"] += """Password expiration is enforced. Reviewer to
             check the expiration policy."""
         else:
-            result["Expiration Check"] = "FAIL"
+            result[EXPIRATION_CHECK] = "FAIL"
             result["Reason"] += "Password expiration is not enforced."
 
         report.append(result)

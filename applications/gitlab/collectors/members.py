@@ -44,7 +44,7 @@ def group_members(group, cfg):
     ]
 
 
-def project_members(group, cfg, projects):
+def project_members(_group, cfg, projects):
     """Direct and inherited members of every project in the group."""
     rows = []
     for p in projects:

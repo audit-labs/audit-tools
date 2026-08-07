@@ -80,7 +80,7 @@ function handleFormSubmit(event) {
     // Use the custom seed if provided; otherwise draw a strong random seed and
     // write it back so the (reproducible) sample can always be tied to a seed.
     const seed = customSeedInput
-        ? parseInt(customSeedInput)
+        ? Number.parseInt(customSeedInput)
         : crypto.getRandomValues(new Uint32Array(1))[0] % 1000000;
     if (!customSeedInput) {
         document.getElementById('customSeed').value = seed;
@@ -89,16 +89,16 @@ function handleFormSubmit(event) {
 }
 
 function generateSamples(seed) {
-    const populationSize = parseInt(document.getElementById('populationSize').value);
-    const sampleSize = parseInt(document.getElementById('sampleSize').value);
-    const replacementSize = parseInt(document.getElementById('replacementSize').value || 0);
+    const populationSize = Number.parseInt(document.getElementById('populationSize').value);
+    const sampleSize = Number.parseInt(document.getElementById('sampleSize').value);
+    const replacementSize = Number.parseInt(document.getElementById('replacementSize').value || 0);
     const resultsDiv = document.getElementById('results');
 
     // Clear previous results
     resultsDiv.innerHTML = '';
 
     // Validate inputs
-    if (isNaN(populationSize) || isNaN(sampleSize) || populationSize <= 0 || sampleSize <= 0) {
+    if (Number.isNaN(populationSize) || Number.isNaN(sampleSize) || populationSize <= 0 || sampleSize <= 0) {
         alert("Please enter valid numbers for required fields.");
         return;
     }
