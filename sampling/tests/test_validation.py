@@ -34,8 +34,9 @@ def test_duplicate_ids_fail_by_default_and_write_duplicate_file(tmp_path):
         source, index=False
     )
 
+    options = _options(source, tmp_path / "out")
     with pytest.raises(AuditSamplingError):
-        run(_options(source, tmp_path / "out"))
+        run(options)
 
     run_dir = next((tmp_path / "out").glob("sample_*"))
     duplicates = pd.read_csv(run_dir / "duplicate_ids.csv")

@@ -17,7 +17,7 @@ def fetch_projects(group, cfg):
     )
 
 
-def project_list(group, cfg, projects):
+def project_list(_group, _cfg, projects):
     """Format the project cache into audit rows."""
     return [
         {

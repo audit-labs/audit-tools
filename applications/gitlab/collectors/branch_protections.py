@@ -12,7 +12,7 @@ def _levels(entries):
     return ", ".join(e.get("access_level_description", "") for e in entries) or "(none)"
 
 
-def branch_protections(group, cfg, projects):
+def branch_protections(_group, cfg, projects):
     rows = []
     for p in projects:
         try:

@@ -101,7 +101,8 @@ def test_session_build_failure_is_reported(tmp_path, fake_checks, monkeypatch):
     assert ("error", "AWS session") in kinds
     # Run still ends with a summary and writes the (empty) package.
     summary = [e for e in events if e.kind == "summary"]
-    assert summary and summary[0].count == 0
+    assert summary
+    assert summary[0].count == 0
     assert sections == []
     assert os.path.exists(tmp_path / "summary.txt")
 

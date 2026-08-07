@@ -7,7 +7,7 @@ import requests
 from .api import paginate
 
 
-def pipelines(group, cfg, projects):
+def pipelines(_group, cfg, projects):
     rows = []
     for p in projects:
         try:

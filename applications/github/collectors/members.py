@@ -132,7 +132,7 @@ def outside_collaborators(org, cfg, repo_collabs):
     return rows
 
 
-def privileged_access(org, cfg, repo_collabs):
+def privileged_access(_org, _cfg, repo_collabs):
     """
     All users with admin permission on any repo.
     Accepts pre-fetched repo_collabs from fetch_repo_collaborators().
@@ -196,7 +196,7 @@ def team_permissions(org, cfg):
     return rows
 
 
-def permission_matrix(org, cfg, repo_collabs):
+def permission_matrix(_org, _cfg, repo_collabs):
     """
     Full per-repo/per-user permission cross-reference.
     Accepts pre-fetched repo_collabs from fetch_repo_collaborators().

@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Check if the script is being run as root
-if [ "$EUID" -ne 0 ]; then
-  echo "Error: This script must be run as root or with sudo."
+if [[ "$EUID" -ne 0 ]]; then
+  echo "Error: This script must be run as root or with sudo." >&2
   exit 1
 fi
 
 # Check if the sshd_config file exists
-if [ ! -f /etc/ssh/sshd_config ]; then
-    echo "Error: /etc/ssh/sshd_config not found."
+if [[ ! -f /etc/ssh/sshd_config ]]; then
+    echo "Error: /etc/ssh/sshd_config not found." >&2
     exit 1
 fi
 
@@ -28,7 +28,7 @@ if ! echo "$permit_root_login" | grep -q "no"; then
     # Look for an explicitly set AuthorizedKeysFile path
     auth_keys_path_line=$(grep -E "^[[:space:]]*AuthorizedKeysFile" /etc/ssh/sshd_config)
 
-    if [ -n "$auth_keys_path_line" ]; then
+    if [[ -n "$auth_keys_path_line" ]]; then
         # An explicit path is set. Extract the path.
         # This removes the 'AuthorizedKeysFile' keyword and leading/trailing whitespace.
         auth_keys_path=$(echo "$auth_keys_path_line" | awk '{print $2}')
@@ -45,7 +45,7 @@ if ! echo "$permit_root_login" | grep -q "no"; then
     fi
 
     echo "Checking for file at: $actual_path"
-    if [ -f "$actual_path" ]; then
+    if [[ -f "$actual_path" ]]; then
         echo "[CRITICAL] Found authorized keys file for root at $actual_path"
         echo "Contents:"
         echo "----------------------------------------"
