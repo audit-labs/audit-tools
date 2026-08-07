@@ -54,7 +54,9 @@ def load_config(path: str | None) -> dict[str, object]:
             "YAML config support requires PyYAML. Install requirements.txt."
         ) from exc
 
-    config_path = Path(path)
+    config_path = Path(path).resolve()
+    if not config_path.is_file():
+        raise AuditSamplingError(f"Config file not found: {path}")
     with config_path.open("r", encoding="utf-8") as handle:
         data = yaml.safe_load(handle) or {}
     if not isinstance(data, dict):
