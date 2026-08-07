@@ -13,10 +13,10 @@ audit workpaper package.
 
 ## Installation
 
-Install the repository requirements:
+Sampling needs only the `analysis` extra (pandas + Excel support):
 
 ```bash
-pip install -r requirements.txt
+pip install ".[analysis]"
 ```
 
 Supported input formats are `.csv`, `.xlsx`, `.xls`, and `.xlsm`.

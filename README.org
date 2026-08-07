@@ -43,9 +43,19 @@ cd audit-tools
 
 *Install Dependencies*
 
+Dependencies are optional /extras/, so you install only what a procedure needs
+(a locked-down laptop never has to pull pandas/dash/plotly it won't run):
+
 #+begin_src bash
-pip install -r requirements.txt
+pip install ".[analysis]"     # sampling + data analysis (pandas, Excel)
+pip install ".[aws]"          # AWS collectors (boto3)
+pip install ".[collectors]"   # GitHub / GitLab collectors (requests)
+pip install ".[dashboards]"   # dash + plotly dashboards
+pip install ".[tui]"          # the terminal UI runner
+pip install ".[all]"          # everything
 #+end_src
+
+=~pip install -r requirements.txt~= still works and installs everything.
 
 *Run a Script*
 

@@ -15,7 +15,7 @@ platform-agnostic.
 ## Run it
 
 ```bash
-pip install -r requirements.txt
+pip install ".[tui]"   # textual + the AWS/GitHub/GitLab collector deps
 python audit_tui.py
 ```
 
