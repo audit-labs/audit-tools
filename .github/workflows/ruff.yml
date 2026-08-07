@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas dash plotly.express ruff
+        pip install ".[dev]"
     - name: Ruff
       run: |
         ruff check .
