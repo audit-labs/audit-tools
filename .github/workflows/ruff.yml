@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - '**.py'
+      - 'pyproject.toml'
+      - '.github/workflows/ruff.yml'
 
 jobs:
   build:
