@@ -1,5 +1,11 @@
 """
 Creates a sample from a CSV or Excel file based on user-defined SAMPLE_SIZE.
+
+NOTE: This is a minimal teaching snippet. For real fieldwork use the
+`audit_sample.py` CLI (or the `sampling_tool` package), which records the
+population hash, seed, method, and tool version in a manifest so the sample is
+reproducible and defensible. This file fixes a SEED only so the example itself is
+repeatable; it does not emit that provenance.
 """
 
 # Import packages
@@ -7,6 +13,10 @@ import pandas as pd
 
 # Define the sample size
 SAMPLE_SIZE = 25
+
+# A fixed seed makes the draw reproducible: same population + same seed => same
+# rows. Record the seed alongside any sample you rely on.
+SEED = 20260707
 
 # Import the data to a pandas DataFrame
 df = pd.read_csv("FILENAME_GOES_HERE.csv")
@@ -19,7 +29,7 @@ df = pd.read_csv("FILENAME_GOES_HERE.csv")
 print("Dataframe size (rows, columns): ", df.shape)
 
 # Sample
-sample = df.sample(SAMPLE_SIZE)
+sample = df.sample(SAMPLE_SIZE, random_state=SEED)
 print("Sample size: ", SAMPLE_SIZE)
 print("Sample:\n", sample)
 
@@ -31,4 +41,4 @@ print("Sample:\n", sample)
 #
 # # Sample Size: 25 + 5 replacement samples
 # SAMPLE_SIZE = 30
-# sample = df.sample(SAMPLE_SIZE, replace=True)
+# sample = df.sample(SAMPLE_SIZE, replace=True, random_state=SEED)
