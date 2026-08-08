@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audit-tools"
-version = "0.1.0"
+version = "1.0.0"
 description = "Scripts for programmatically gathering IT audit evidence from cloud, source control, databases, and operating systems."
 readme = { file = "README.org", content-type = "text/plain" }
 requires-python = ">=3.10"

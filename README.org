@@ -89,6 +89,12 @@ check plus a summary — with a progress bar and per-check results:
 
 See =tui/README.md= for details. GitHub, GitLab, and AWS are supported.
 
+** Stability
+
+*Audit Tools* is stable as of *v1.0.0*. It is a curated collection of runnable
+scripts and an interactive TUI rather than an importable library, so each release
+is tagged to give an engagement an exact revision to pin to.
+
 ** Contributing
 
 Contributions are welcome. You can contribute by:
