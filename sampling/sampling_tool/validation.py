@@ -91,7 +91,7 @@ def validate_and_prepare(population: pd.DataFrame, options) -> ValidationResult:
 
     if options.sample_size is not None and options.sample_size <= 0:
         raise AuditSamplingError("--sample-size must be a positive integer.")
-    needs_sample_size = options.method == "random" or (
+    needs_sample_size = options.method in ("random", "systematic") or (
         options.method == "stratified" and bool(options.strata_proportions)
     )
     if needs_sample_size:

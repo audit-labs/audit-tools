@@ -7,6 +7,7 @@ import random
 
 import pandas as pd
 
+from . import engine
 from .io import AuditSamplingError
 
 
@@ -89,7 +90,13 @@ def largest_remainder_allocation(
 def random_sample(
     population: pd.DataFrame, sample_size: int, seed: int
 ) -> pd.DataFrame:
-    return population.sample(n=sample_size, random_state=seed)
+    return population.iloc[engine.select_random(len(population), sample_size, seed)]
+
+
+def systematic_sample(
+    population: pd.DataFrame, sample_size: int, seed: int
+) -> pd.DataFrame:
+    return population.iloc[engine.select_systematic(len(population), sample_size, seed)]
 
 
 def stratified_sample(
@@ -99,31 +106,9 @@ def stratified_sample(
     seed: int,
     allow_shortfall: bool,
 ) -> tuple[pd.DataFrame, list[dict[str, object]]]:
-    samples: list[pd.DataFrame] = []
-    summary: list[dict[str, object]] = []
-    for index, (stratum, requested) in enumerate(counts.items()):
-        stratum_population = population[population[stratify_column] == stratum]
-        actual_count = min(requested, len(stratum_population))
-        if actual_count < requested and not allow_shortfall:
-            raise AuditSamplingError(
-                f"Stratum '{stratum}' has {len(stratum_population)} rows; "
-                f"requested {requested}. Use --allow-shortfall to continue."
-            )
-        if actual_count:
-            sampled = stratum_population.sample(
-                n=actual_count, random_state=seed + index
-            )
-            samples.append(sampled)
-        summary.append(
-            {
-                "Stratum": stratum,
-                "Population Count": len(stratum_population),
-                "Requested Sample Count": requested,
-                "Actual Sample Count": actual_count,
-                "Shortfall": requested - actual_count,
-            }
-        )
-
-    if samples:
-        return pd.concat(samples), summary
-    return population.iloc[0:0].copy(), summary
+    strata = population[stratify_column].astype(str).tolist()
+    try:
+        positions, summary = engine.select_stratified(strata, counts, seed, allow_shortfall)
+    except ValueError as exc:
+        raise AuditSamplingError(f"{exc} Use --allow-shortfall to continue.") from exc
+    return population.iloc[positions], summary

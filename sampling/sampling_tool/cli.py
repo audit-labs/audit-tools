@@ -18,6 +18,7 @@ from .methods import (
     largest_remainder_allocation,
     random_sample,
     stratified_sample,
+    systematic_sample,
 )
 from .reconciliation import build_reconciliation, build_strata_summary
 from .reporting import RunLogger, build_methodology
@@ -34,7 +35,7 @@ def build_parser() -> ArgumentParser:
     parser.add_argument("--input")
     parser.add_argument("--sheet")
     parser.add_argument("--id-column")
-    parser.add_argument("--method", choices=["random", "stratified", "validate-only"])
+    parser.add_argument("--method", choices=["random", "systematic", "stratified", "validate-only"])
     parser.add_argument("--sample-size", type=int)
     parser.add_argument("--stratify-column")
     parser.add_argument("--strata-counts")
@@ -106,9 +107,9 @@ def merge_options(args: Namespace, config: dict[str, object]) -> SimpleNamespace
         raise AuditSamplingError("--input is required unless provided by --config.")
     if merged["method"] is None:
         raise AuditSamplingError("--method is required unless provided by --config.")
-    if merged["method"] not in {"random", "stratified", "validate-only"}:
+    if merged["method"] not in {"random", "systematic", "stratified", "validate-only"}:
         raise AuditSamplingError(
-            "--method must be random, stratified, or validate-only."
+            "--method must be random, systematic, stratified, or validate-only."
         )
     if merged["sample_size"] is not None:
         merged["sample_size"] = int(merged["sample_size"])
@@ -186,7 +187,7 @@ def run(options) -> Path:
             print(f"WARNING: {warning}")
             logger.warning(warning)
 
-        if options.method in {"random", "stratified"}:
+        if options.method in {"random", "systematic", "stratified"}:
             random_seed, generated = ensure_seed(options.seed)
             if generated:
                 warning = f"No seed provided; generated seed {random_seed}."
@@ -195,6 +196,9 @@ def run(options) -> Path:
 
         if options.method == "random":
             sample = random_sample(validated, options.sample_size, random_seed)
+            sample = add_sample_metadata(sample, options, random_seed, timestamp, None)
+        elif options.method == "systematic":
+            sample = systematic_sample(validated, options.sample_size, random_seed)
             sample = add_sample_metadata(sample, options, random_seed, timestamp, None)
         elif options.method == "stratified":
             counts = validation.strata_counts
@@ -318,7 +322,7 @@ def _write_outputs(
 ) -> None:
     write_csv(validated, run_dir / _POPULATION_VALIDATED_CSV)
     _track(output_files, _POPULATION_VALIDATED_CSV)
-    if options.method in {"random", "stratified"}:
+    if options.method in {"random", "systematic", "stratified"}:
         write_csv(sample, run_dir / "sample.csv")
         _track(output_files, "sample.csv")
     if not excluded_rows.empty:

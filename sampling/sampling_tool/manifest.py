@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from . import __version__
+from . import __version__, engine
 
 
 def build_manifest(
@@ -29,6 +29,8 @@ def build_manifest(
     return {
         "tool": "audit_sample",
         "version": __version__,
+        "engine": engine.ENGINE,
+        "engine_version": engine.ENGINE_VERSION,
         "run_timestamp_utc": run_timestamp_utc,
         "input_file": str(input_file),
         "input_sha256": input_sha256,

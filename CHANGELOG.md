@@ -8,6 +8,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `sampling_tool.engine`: one standard-library selection algorithm (random, systematic, stratified) seeded from strings, so a seed selects the same rows with or without pandas and on every install. Sample manifests record `engine` and `engine_version` (2). `audit-sample --method systematic`.
+- Attribute sample sizes and upper deviation limits from the binomial distribution, matching the AICPA Audit Sampling guide tables for large populations; default sample sizes by control frequency.
+
+### Changed
+
+- `random_sample` and `stratified_sample` select through the engine. The same seed now selects different rows than version 1 did; earlier runs remain verifiable from their saved outputs.
+
 - Installable package: `pip install audit-tools` installs `tui`, `applications`,
   and `sampling` as packages, the `audit-sample` and `audit-tui` commands, and the
   SQL/OS procedure library and sampling examples under `<prefix>/share/audit-tools/`.
