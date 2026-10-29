@@ -39,8 +39,29 @@ dev = ["audit-tools[all]", "pytest", "ruff"]
 Homepage = "https://audit-labs.dev"
 Repository = "https://github.com/audit-labs/audit-tools"
 
-# This repo is a runnable script collection, not an importable library. Declare
-# no modules so `pip install .` provisions dependencies (via extras) without
-# trying to package the top-level scripts.
+[project.scripts]
+audit-sample = "sampling.sampling_tool.cli:main"
+audit-tui = "tui.app:main"
+
+# The Python collectors, the TUI, and the sampling tool install as packages. The
+# SQL and OS procedure library and the sampling examples are data files under
+# <prefix>/share/audit-tools/, so tools that read them (audit-workbench) work
+# from an installed wheel without a checkout.
 [tool.setuptools]
 py-modules = []
+
+[tool.setuptools.packages.find]
+include = ["tui", "applications", "applications.*", "sampling", "sampling.sampling_tool"]
+
+[tool.setuptools.data-files]
+"share/audit-tools/databases/mongo" = ["databases/mongo/*"]
+"share/audit-tools/databases/mysql" = ["databases/mysql/*"]
+"share/audit-tools/databases/oracle" = ["databases/oracle/*"]
+"share/audit-tools/databases/postgres" = ["databases/postgres/*"]
+"share/audit-tools/databases/snowflake" = ["databases/snowflake/*"]
+"share/audit-tools/databases/sql" = ["databases/sql/*.*"]
+"share/audit-tools/databases/sql/passwords" = ["databases/sql/passwords/*"]
+"share/audit-tools/os/linux" = ["os/linux/*.*"]
+"share/audit-tools/os/linux/report" = ["os/linux/report/*"]
+"share/audit-tools/os/windows" = ["os/windows/*"]
+"share/audit-tools/sampling/examples" = ["sampling/examples/*"]
