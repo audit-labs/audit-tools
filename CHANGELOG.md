@@ -6,6 +6,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-29
+
 ### Added
 
 - `sampling_tool.engine`: one standard-library selection algorithm (random, systematic, stratified) seeded from strings, so a seed selects the same rows with or without pandas and on every install. Sample manifests record `engine` and `engine_version` (2). `audit-sample --method systematic`.
@@ -39,4 +41,5 @@ and gives engagements an exact revision to pin to.
   procedure needs.
 - CodeQL and Ruff CI.
 
+[1.1.0]: https://github.com/audit-labs/audit-tools/releases/tag/v1.1.0
 [1.0.0]: https://github.com/audit-labs/audit-tools/releases/tag/v1.0.0
