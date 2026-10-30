@@ -13,6 +13,7 @@ there is no per-item cache, so every check is called as ``fn(cfg)``.
 import os
 import sys
 from collections.abc import Iterable
+from dataclasses import dataclass
 from datetime import date
 
 from tui.common import Check, ProgressCallback, ProgressEvent
@@ -89,14 +90,21 @@ def default_output_dir(out: str, profile: str) -> str:
     return os.path.join(out, f"aws_audit_{subject}_{date.today().isoformat()}")
 
 
+@dataclass(frozen=True)
+class AwsTarget:
+    """The AWS profile, region, and account to audit."""
+
+    profile: str
+    region: str
+    account: str
+
+
 # --- Runner -----------------------------------------------------------------
 
 
 def run_audit(
+    target: AwsTarget,
     *,
-    profile: str,
-    region: str,
-    account: str,
     output_dir: str,
     selected_keys: Iterable[str],
     on_event: ProgressCallback,
@@ -109,6 +117,7 @@ def run_audit(
     can't be built (e.g. an unknown profile), that is reported and the run ends
     cleanly.
     """
+    profile, region, account = target.profile, target.region, target.account
     subject = profile or "default"
     selected = set(selected_keys)
     checks = [c for c in CHECKS if c.key in selected]

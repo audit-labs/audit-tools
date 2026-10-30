@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .facts import RunFacts
+
 
 class RunLogger:
     def __init__(self) -> None:
@@ -23,29 +25,18 @@ class RunLogger:
 
 
 def build_methodology(
-    *,
-    input_file: Path,
-    input_sheet: str | None,
-    input_sha256: str,
-    source_row_count: int,
-    options,
-    effective_id_column: str | None,
-    id_column_omitted: bool,
-    duplicate_id_count: int,
-    blank_id_count: int,
-    sample_size_actual: int,
-    random_seed: int | None,
-    strata_summary: list[dict[str, object]] | None,
+    facts: RunFacts, strata_summary: list[dict[str, object]] | None
 ) -> str:
+    options = facts.options
     lines = [
         "Audit Sampling Methodology",
         "",
-        f"Source file: {input_file}",
-        f"Source sheet: {input_sheet or ''}",
-        f"Input SHA-256: {input_sha256}",
-        f"Source row count: {source_row_count}",
+        f"Source file: {facts.input_file}",
+        f"Source sheet: {facts.input_sheet or ''}",
+        f"Input SHA-256: {facts.input_sha256}",
+        f"Source row count: {facts.source_row_count}",
     ]
-    if id_column_omitted:
+    if facts.id_column_omitted:
         lines.append(
             "ID column: omitted; _audit_row_id was generated from _source_row_number."
         )
@@ -53,15 +44,15 @@ def build_methodology(
         lines.append(f"ID column: {options.id_column}")
     lines.extend(
         [
-            f"Effective ID column: {effective_id_column or ''}",
-            f"Duplicate ID rows identified: {duplicate_id_count}",
-            f"Blank ID rows identified: {blank_id_count}",
+            f"Effective ID column: {facts.effective_id_column or ''}",
+            f"Duplicate ID rows identified: {facts.duplicate_id_count}",
+            f"Blank ID rows identified: {facts.blank_id_count}",
             f"Blank ID handling: {'excluded' if options.exclude_blank_id else 'retained'}",
             f"Filters applied: {options.filters or {}}",
             f"Sampling method: {options.method}",
             f"Sample size requested: {options.sample_size or ''}",
-            f"Sample size selected: {sample_size_actual}",
-            f"Random seed used: {random_seed or ''}",
+            f"Sample size selected: {facts.sample_size_actual}",
+            f"Random seed used: {facts.random_seed or ''}",
         ]
     )
     if options.method == "stratified":

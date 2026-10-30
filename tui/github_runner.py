@@ -12,6 +12,7 @@ This module reuses the collectors and CSV reporter under
 import os
 import sys
 from collections.abc import Iterable
+from dataclasses import dataclass
 from datetime import date
 
 from tui.common import Check, ProgressCallback, ProgressEvent
@@ -145,15 +146,22 @@ def default_output_dir(out: str, org: str) -> str:
     return os.path.join(out, f"github_audit_{org}_{date.today().isoformat()}")
 
 
+@dataclass(frozen=True)
+class GitHubTarget:
+    """An organization to audit and the token and default branch to audit it with."""
+
+    org: str
+    token: str
+    branch: str
+
+
 # --- Runner -----------------------------------------------------------------
 
 
 def run_audit(
+    target: GitHubTarget,
     *,
-    org: str,
-    token: str,
     output_dir: str,
-    branch: str,
     selected_keys: Iterable[str],
     on_event: ProgressCallback,
 ) -> list[tuple[str, int]]:
@@ -166,6 +174,7 @@ def run_audit(
     Returns the list of (label, row_count) sections that was written to the
     summary file.
     """
+    org, token, branch = target.org, target.token, target.branch
     cfg = build_cfg(token)
     selected = set(selected_keys)
     checks = [c for c in CHECKS if c.key in selected]

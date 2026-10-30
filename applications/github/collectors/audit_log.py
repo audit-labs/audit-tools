@@ -162,13 +162,8 @@ def _dedupe_events(events):
 
 def _branch_or_pattern(event):
     """Find the most useful target label for branch and ruleset audit events."""
-    return (
-        event.get("name")
-        or event.get("branch")
-        or event.get("ruleset_name")
-        or event.get("ruleset_old_name")
-        or ""
-    )
+    keys = ("name", "branch", "ruleset_name", "ruleset_old_name")
+    return next((event[key] for key in keys if event.get(key)), "")
 
 
 def _event_summary(event):

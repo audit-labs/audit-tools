@@ -10,6 +10,7 @@ through a callback.
 import os
 import sys
 from collections.abc import Iterable
+from dataclasses import dataclass
 from datetime import date
 
 from tui.common import Check, ProgressCallback, ProgressEvent
@@ -109,14 +110,21 @@ def default_output_dir(out: str, group: str) -> str:
     return os.path.join(out, f"gitlab_audit_{safe_group}_{date.today().isoformat()}")
 
 
+@dataclass(frozen=True)
+class GitLabTarget:
+    """A group to audit and the token and instance URL to audit it with."""
+
+    group: str
+    token: str
+    base_url: str
+
+
 # --- Runner -----------------------------------------------------------------
 
 
 def run_audit(
+    target: GitLabTarget,
     *,
-    group: str,
-    token: str,
-    base_url: str,
     output_dir: str,
     selected_keys: Iterable[str],
     on_event: ProgressCallback,
@@ -127,6 +135,7 @@ def run_audit(
     A collector that raises is reported as an error and recorded with a count
     of 0, so one bad check never aborts the whole run.
     """
+    group, token, base_url = target.group, target.token, target.base_url
     cfg = build_cfg(token, base_url)
     selected = set(selected_keys)
     checks = [c for c in CHECKS if c.key in selected]

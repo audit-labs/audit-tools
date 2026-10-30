@@ -18,7 +18,7 @@ def _run(coro):
 
 
 def test_full_navigation(monkeypatch):
-    def fake_run_audit(*, org, token, output_dir, branch, selected_keys, on_event):
+    def fake_run_audit(target, *, output_dir, selected_keys, on_event):
         on_event(gh.ProgressEvent("start", "Member roster"))
         on_event(gh.ProgressEvent("done", "Member roster", count=3))
         on_event(gh.ProgressEvent("summary", output_dir, count=3))
@@ -91,7 +91,7 @@ def test_gitlab_navigation(monkeypatch):
     monkeypatch.delenv("GITLAB_GROUP", raising=False)
     monkeypatch.delenv("GITLAB_TOKEN", raising=False)
 
-    def fake_run_audit(*, group, token, base_url, output_dir, selected_keys, on_event):
+    def fake_run_audit(target, *, output_dir, selected_keys, on_event):
         on_event(gh.ProgressEvent("done", "Group members", count=7))
         on_event(gh.ProgressEvent("summary", output_dir, count=7))
         return [("Group members", 7)]
@@ -131,9 +131,7 @@ def test_aws_navigation(monkeypatch):
     for var in ("AWS_PROFILE", "AWS_DEFAULT_REGION", "AWS_AUDIT_ACCOUNT"):
         monkeypatch.delenv(var, raising=False)
 
-    def fake_run_audit(
-        *, profile, region, account, output_dir, selected_keys, on_event
-    ):
+    def fake_run_audit(target, *, output_dir, selected_keys, on_event):
         on_event(gh.ProgressEvent("done", "IAM users", count=5))
         on_event(gh.ProgressEvent("summary", output_dir, count=5))
         return [("IAM users", 5)]

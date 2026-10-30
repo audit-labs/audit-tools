@@ -52,9 +52,7 @@ def fake_checks(monkeypatch):
 def run(tmp_path, keys, profile="", region="us-east-1", account=""):
     events = []
     sections = r.run_audit(
-        profile=profile,
-        region=region,
-        account=account,
+        r.AwsTarget(profile=profile, region=region, account=account),
         output_dir=str(tmp_path),
         selected_keys=keys,
         on_event=events.append,

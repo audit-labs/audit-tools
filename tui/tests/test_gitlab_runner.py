@@ -49,9 +49,7 @@ def fake_checks(monkeypatch):
 def run(tmp_path, keys, base_url="https://gitlab.com/api/v4"):
     events = []
     sections = r.run_audit(
-        group="grp",
-        token="tok",
-        base_url=base_url,
+        r.GitLabTarget(group="grp", token="tok", base_url=base_url),
         output_dir=str(tmp_path),
         selected_keys=keys,
         on_event=events.append,

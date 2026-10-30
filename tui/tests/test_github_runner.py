@@ -55,10 +55,8 @@ def fake_checks(monkeypatch):
 def run(tmp_path, keys, fake_checks, branch="main"):
     events = []
     sections = r.run_audit(
-        org="acme",
-        token="tok",
+        r.GitHubTarget(org="acme", token="tok", branch=branch),
         output_dir=str(tmp_path),
-        branch=branch,
         selected_keys=keys,
         on_event=events.append,
     )

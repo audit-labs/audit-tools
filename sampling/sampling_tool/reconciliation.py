@@ -4,28 +4,23 @@ from __future__ import annotations
 
 import pandas as pd
 
+from .facts import RunFacts
 
-def build_reconciliation(
-    source_rows: int,
-    blank_id_count: int,
-    duplicate_id_count: int,
-    excluded_rows: int,
-    validated_rows: int,
-    requested_sample_size: int | None,
-    final_sample_size: int,
-) -> pd.DataFrame:
-    unsampled = validated_rows - final_sample_size
+
+def build_reconciliation(facts: RunFacts) -> pd.DataFrame:
+    unsampled = facts.validated_population_count - facts.sample_size_actual
+    requested_sample_size = facts.requested_sample_size
     rows = [
-        ("Source rows", source_rows),
-        ("Rows with blank ID", blank_id_count),
-        ("Duplicate IDs", duplicate_id_count),
-        ("Excluded rows", excluded_rows),
-        ("Validated population rows", validated_rows),
+        ("Source rows", facts.source_row_count),
+        ("Rows with blank ID", facts.blank_id_count),
+        ("Duplicate IDs", facts.duplicate_id_count),
+        ("Excluded rows", facts.excluded_row_count),
+        ("Validated population rows", facts.validated_population_count),
         (
             "Requested sample size",
             "" if requested_sample_size is None else requested_sample_size,
         ),
-        ("Final sample size", final_sample_size),
+        ("Final sample size", facts.sample_size_actual),
         ("Unsampled population rows", unsampled),
     ]
     return pd.DataFrame(rows, columns=["Metric", "Value"])

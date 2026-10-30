@@ -61,10 +61,8 @@ def _github_output_dir(s: dict) -> str:
 
 def _github_run(s: dict, output_dir, selected_keys, on_event):
     return github_runner.run_audit(
-        org=s["org"],
-        token=s["token"],
+        github_runner.GitHubTarget(org=s["org"], token=s["token"], branch=s["branch"]),
         output_dir=output_dir,
-        branch=s["branch"],
         selected_keys=selected_keys,
         on_event=on_event,
     )
@@ -76,9 +74,7 @@ def _gitlab_output_dir(s: dict) -> str:
 
 def _gitlab_run(s: dict, output_dir, selected_keys, on_event):
     return gitlab_runner.run_audit(
-        group=s["group"],
-        token=s["token"],
-        base_url=s["base_url"],
+        gitlab_runner.GitLabTarget(group=s["group"], token=s["token"], base_url=s["base_url"]),
         output_dir=output_dir,
         selected_keys=selected_keys,
         on_event=on_event,
@@ -91,9 +87,7 @@ def _aws_output_dir(s: dict) -> str:
 
 def _aws_run(s: dict, output_dir, selected_keys, on_event):
     return aws_runner.run_audit(
-        profile=s["profile"],
-        region=s["region"],
-        account=s["account"],
+        aws_runner.AwsTarget(profile=s["profile"], region=s["region"], account=s["account"]),
         output_dir=output_dir,
         selected_keys=selected_keys,
         on_event=on_event,

@@ -1,0 +1,50 @@
+config_version = "0"
+
+exclude_patterns = [
+  "**/vendor/**",
+  "**/node_modules/**",
+  "**/testdata/**",
+  "**/dist/**",
+  "**/.build/**",
+  "**/build/**",
+  "**/*.min.*",
+  "**/generated/**",
+  ".claude/**",
+  "**/Pods/**",
+  # Each application under applications/ runs standalone with its own
+  # reporters package, so the GitHub and GitLab CSV reporters are copies.
+  "applications/github/reporters/csv_reporter.py",
+  "applications/gitlab/reporters/csv_reporter.py",
+]
+
+test_patterns = [
+  "**/test/**",
+  "**/tests/**",
+  "**/Tests/**",
+  "**/*_test.*",
+  "**/test_*.*",
+  "**/*.test.*",
+  "**/*Tests.swift",
+  "e2e/**",
+]
+
+[[source]]
+name = "default"
+default = true
+
+[[plugin]]
+name = "osv-scanner"
+
+[[plugin]]
+name = "trufflehog"
+
+# Early returns are guard clauses, which keep the happy path unindented.
+[smells.return_statements]
+enabled = false
+
+# Function and file complexity are left to review rather than counted.
+[smells.function_complexity]
+enabled = false
+
+[smells.file_complexity]
+enabled = false

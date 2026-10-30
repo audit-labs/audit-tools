@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import sys
 from argparse import ArgumentParser, Namespace
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
 
+from .facts import RunFacts
 from .filters import apply_filters, parse_filters
 from .io import AuditSamplingError, load_population, sha256_file, write_csv
 from .manifest import build_manifest, write_manifest
@@ -217,16 +219,8 @@ def run(options) -> Path:
                 sampled, options, random_seed, timestamp, options.stratify_column
             )
 
-        _write_outputs(
-            run_dir,
-            options,
-            validated,
-            excluded_rows,
-            duplicate_rows,
-            sample,
-            strata_rows,
-            output_files,
-        )
+        frames = RunFrames(validated, excluded_rows, duplicate_rows, sample, strata_rows)
+        _write_outputs(run_dir, options, frames, output_files)
         logger.log("final status: success")
         print("Audit sampling run completed.")
     except AuditSamplingError as exc:
@@ -243,48 +237,29 @@ def run(options) -> Path:
         logger.log("final status: failed")
         raise
     finally:
-        reconciliation = build_reconciliation(
-            source_rows=len(source),
-            blank_id_count=blank_id_count,
-            duplicate_id_count=duplicate_id_count or len(duplicate_rows),
-            excluded_rows=len(excluded_rows),
-            validated_rows=len(validated),
-            requested_sample_size=_requested_sample_size(options, strata_rows),
-            final_sample_size=len(sample),
-        )
-        write_csv(reconciliation, run_dir / "population_reconciliation.csv")
-        _track(output_files, "population_reconciliation.csv")
-        methodology = build_methodology(
-            input_file=input_path,
-            input_sheet=options.sheet,
-            input_sha256=input_hash,
-            source_row_count=len(source),
-            options=options,
-            effective_id_column=effective_id_column,
-            id_column_omitted=id_column_omitted,
-            duplicate_id_count=duplicate_id_count or len(duplicate_rows),
-            blank_id_count=blank_id_count,
-            sample_size_actual=len(sample),
-            random_seed=random_seed,
-            strata_summary=strata_rows,
-        )
-        (run_dir / "methodology.txt").write_text(methodology)
-        _track(output_files, "methodology.txt")
-        manifest = build_manifest(
-            run_timestamp_utc=timestamp,
+        facts = RunFacts(
             input_file=input_path,
             input_sha256=input_hash,
             input_sheet=options.sheet,
             options=options,
             effective_id_column=effective_id_column,
             id_column_omitted=id_column_omitted,
-            sample_size_actual=len(sample),
-            random_seed=random_seed,
             source_row_count=len(source),
             validated_population_count=len(validated),
             excluded_row_count=len(excluded_rows),
             duplicate_id_count=duplicate_id_count or len(duplicate_rows),
             blank_id_count=blank_id_count,
+            requested_sample_size=_requested_sample_size(options, strata_rows),
+            sample_size_actual=len(sample),
+            random_seed=random_seed,
+        )
+        write_csv(build_reconciliation(facts), run_dir / "population_reconciliation.csv")
+        _track(output_files, "population_reconciliation.csv")
+        (run_dir / "methodology.txt").write_text(build_methodology(facts, strata_rows))
+        _track(output_files, "methodology.txt")
+        manifest = build_manifest(
+            facts,
+            run_timestamp_utc=timestamp,
             output_files=sorted(output_files + ["run.log", "manifest.json"]),
         )
         write_manifest(manifest, run_dir / "manifest.json")
@@ -310,29 +285,33 @@ def add_sample_metadata(
     return output
 
 
+@dataclass
+class RunFrames:
+    """The tables a successful run writes."""
+
+    validated: pd.DataFrame
+    excluded_rows: pd.DataFrame
+    duplicate_rows: pd.DataFrame
+    sample: pd.DataFrame
+    strata_rows: list[dict[str, object]]
+
+
 def _write_outputs(
-    run_dir: Path,
-    options,
-    validated: pd.DataFrame,
-    excluded_rows: pd.DataFrame,
-    duplicate_rows: pd.DataFrame,
-    sample: pd.DataFrame,
-    strata_rows: list[dict[str, object]],
-    output_files: list[str],
+    run_dir: Path, options, frames: RunFrames, output_files: list[str]
 ) -> None:
-    write_csv(validated, run_dir / _POPULATION_VALIDATED_CSV)
+    write_csv(frames.validated, run_dir / _POPULATION_VALIDATED_CSV)
     _track(output_files, _POPULATION_VALIDATED_CSV)
     if options.method in {"random", "systematic", "stratified"}:
-        write_csv(sample, run_dir / "sample.csv")
+        write_csv(frames.sample, run_dir / "sample.csv")
         _track(output_files, "sample.csv")
-    if not excluded_rows.empty:
-        write_csv(excluded_rows, run_dir / _EXCLUDED_ROWS_CSV)
+    if not frames.excluded_rows.empty:
+        write_csv(frames.excluded_rows, run_dir / _EXCLUDED_ROWS_CSV)
         _track(output_files, _EXCLUDED_ROWS_CSV)
-    if not duplicate_rows.empty:
-        write_csv(duplicate_rows, run_dir / _DUPLICATE_IDS_CSV)
+    if not frames.duplicate_rows.empty:
+        write_csv(frames.duplicate_rows, run_dir / _DUPLICATE_IDS_CSV)
         _track(output_files, _DUPLICATE_IDS_CSV)
     if options.method == "stratified":
-        write_csv(build_strata_summary(strata_rows), run_dir / "strata_summary.csv")
+        write_csv(build_strata_summary(frames.strata_rows), run_dir / "strata_summary.csv")
         _track(output_files, "strata_summary.csv")
 
 
