@@ -21,7 +21,7 @@ log_file_content() {
     FILE_NAME=$(basename "$FILE_PATH")
     echo "## $FILE_NAME" >> "$REPORT_FILE"
     if [[ -f $FILE_PATH ]]; then
-        if $TRIM_COMMENTS; then
+        if "$TRIM_COMMENTS"; then
             # Trim comments (lines starting with # or empty lines)
             grep -vE '^\s*#|^\s*$' "$FILE_PATH" >> "$REPORT_FILE"
         else

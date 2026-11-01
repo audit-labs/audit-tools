@@ -87,7 +87,7 @@ for PS_ARN in $PROVISIONED_SETS_ARN; do
 
     # Now process each assignment found for this permission set
     for row in $(echo "${ACCOUNT_ASSIGNMENTS}" | jq -r '.[] | @base64'); do
-        _jq() { echo ${row} | base64 --decode | jq -r ${1}; return 0; }
+        _jq() { echo "${row}" | base64 --decode | jq -r "${1}"; return 0; }
         PRINCIPAL_TYPE=$(_jq '.PrincipalType')
         PRINCIPAL_ID=$(_jq '.PrincipalId')
 

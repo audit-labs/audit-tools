@@ -80,7 +80,7 @@ chmod +x aws_iam_users.sh
 
 ``` text
 Fetching IAM Identity Center and Account details...
-Successfully found Account 'cmc' with ID: 214941490075
+Successfully found Account 'cmc' with ID: 123456789012
 ---
 Step 2: Finding all permission sets provisioned to 'cmc'...
 Found provisioned permission sets. Now checking assignments for each...
@@ -190,9 +190,9 @@ This will produce a JSON file as the output, with both metadata and the password
     "aws_profile": "default",
     "aws_region": "eu-west-1",
     "aws_caller_identity": {
-      "UserId": "214941490075",
-      "Account": "214941490075",
-      "Arn": "arn:aws:iam::214941490075:root"
+      "UserId": "123456789012",
+      "Account": "123456789012",
+      "Arn": "arn:aws:iam::123456789012:root"
     }
   },
   "PasswordPolicy": {
@@ -262,7 +262,7 @@ Summary:
 # working_directory: /home/cloudshell-user
 # aws_profile: default
 # aws_region: eu-west-1
-"# aws_caller_identity: {'UserId': '214941490075', 'Account': '214941490075', 'Arn': 'arn:aws:iam::214941490075:root'}"
+"# aws_caller_identity: {'UserId': '123456789012', 'Account': '123456789012', 'Arn': 'arn:aws:iam::123456789012:root'}"
 
 Rule#,Policy‑Item,Expected,Actual,Result
 1,Minimum password length,8,8,PASS
